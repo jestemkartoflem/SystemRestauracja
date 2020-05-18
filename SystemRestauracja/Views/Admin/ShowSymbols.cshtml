@@ -1,0 +1,37 @@
+﻿@model SystemRestauracja.Models.Admin.ShowSymbolsViewModel
+@{
+    ViewData["Title"] = "ShowSymbols";
+}
+
+<h1>Lista wszystkich symboli</h1>
+
+
+
+
+
+<div class="container">
+    <div class="row">
+        <label class="col">Nazwa symbolu</label>
+        <label class="col">Id symbolu</label>
+        <label class="col">Wygląd symbolu</label>
+        <label class="col">Kolor</label>
+        <label class="col"></label>
+        <label class="col"></label>
+    </div>
+</div>
+<form class="container">
+    @foreach (var symbol in Model.Symbole)
+    {
+        <div>
+            <div class="row">
+                <a class="col text-primary" role="button">@symbol.Nazwa</a>
+                <label class="col text-primary">@symbol.FontId</label>
+                <i class="@symbol.FontId col" style="color:@symbol.Color"></i>
+                <label class="col text-primary">@symbol.Color</label>
+                <a class="btn btn-outline-info col" asp-action="EditSymbol" asp-controller="Admin" asp-route-symbolId="@symbol.Id">Edytuj</a>
+                <a class="btn btn-outline-danger col" asp-action="DeleteSymbol" asp-controller="Admin" asp-route-symbolId="@symbol.Id">Usuń</a>
+            </div>
+        </div>
+        <hr />
+    }
+</form>

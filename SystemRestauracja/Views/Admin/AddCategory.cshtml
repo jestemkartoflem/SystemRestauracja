@@ -1,0 +1,41 @@
+﻿@model SystemRestauracja.Models.Admin.CategoryViewModel
+@{
+    ViewData["Title"] = "Dodaj kategorię";
+}
+<h1>@ViewData["Title"]</h1>
+
+<form class="ml-5 col" id="form">
+    <div class="row">
+        @Html.TextBoxFor(model => model.CatName, new { @class = "form-control", @placeholder = "Nazwa" })
+    </div>
+    <div class="row">
+        <input type="checkbox" class="form-check-input" id="HasParent" asp-for="HasParentCategory" />
+        <label>Czy ma nadrzędną kategorię?</label>
+    </div>
+    <div class="row hide" id="categoryChoice">
+        @if (Model.ParentCategoryChoice.Any())
+        {
+        <select class="form-control" asp-for="SelectedCategoryId" asp-items="@(new SelectList(Model.ParentCategoryChoice, "Id", "Nazwa"))"></select>
+        }
+    </div>
+    <div class="row">
+        <input type="submit" formmethod="post" class="btn btn-dark" value="Zatwierdź" />
+    </div>
+</form>
+
+<script>
+    $(function () {
+        $("#HasParent").click(function () {
+            if ($(this).is(":checked")) {
+                $("#categoryChoice").show();
+            } else {
+                $("#categoryChoice").hide();
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $("#categoryChoice").hide();
+    });
+
+</script>

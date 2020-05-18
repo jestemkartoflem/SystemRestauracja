@@ -1,0 +1,73 @@
+﻿@model SystemRestauracja.Models.Admin.DanieViewModel
+@{
+    ViewData["Title"] = "Dodaj Danie";
+}
+<h1>@ViewData["Title"]</h1>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
+@*<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">*@
+<script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+@*<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>*@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+
+<form class="ml-5 w-75" id="form">
+    <div class="row">
+        <input type="text" class="form-control col text-primary" asp-for="DanieName" placeholder="Nazwa potrawy" />
+    </div>
+    <div class="row">
+        <textarea asp-for="Description" class="form-control col text-primary" placeholder="Krótki opis"></textarea>
+    </div>
+    <div class="row">
+        <label>Wybór kategorii dania</label>
+        <select class="form-control" asp-for="SelectedCategoryId" asp-items="@(new SelectList(Model.CategoryChoice, "Id", "Nazwa"))"></select>
+    </div>
+    <div class="row w-25">
+        <label class="mr-2">Cena</label><br />
+        <input type="number" name="price" min="0" step="0.01" class="form-control w-25 col text-primary" asp-for="Price" value="0" />
+    </div>
+    <label class="mr-2">Symbole</label>
+    <div class="row">
+        <div class="col-md-12">
+
+            <select id="select" class="mdb-select colorful-select dropdown-primary md-form form-control w-50" multiple searchable="Szukanie" asp-for="WybraneIdSymboli" asp-items="(List<SelectListItem>)ViewBag.Symbole">
+                @*<option value="" disabled selected>Wybierz symbole</option>*@
+            </select>
+
+        </div>
+    </div>
+    @*<div class="row">
+            <input type="checkbox" class="form-check-input" asp-for="IsSpicy" />
+            <label>Ostre</label>
+        </div>
+        <div class="row">
+            <input type="checkbox" class="form-check-input" asp-for="IsVegan" />
+            <label>Wegańskie</label>*@
+    <div class="row">
+        <input type="checkbox" class="form-check-input" asp-for="IsPublic" />
+        <label>Czy opublikować?</label>
+    </div>
+    <div class="row">
+        <input type="submit" formmethod="post" class="btn btn-dark" value="Zatwierdź" />
+    </div>
+</form>
+
+<script>
+    $(document).on('keydown', 'input[pattern]', function (e) {
+        var input = $(this);
+        var oldVal = input.val();
+        var regex = new RegExp(input.attr('pattern'), 'g');
+
+        setTimeout(function () {
+            var newVal = input.val();
+            if (!regex.test(newVal)) {
+                input.val(oldVal);
+            }
+        }, 0);
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#select').multiselect();
+    });
+</script>

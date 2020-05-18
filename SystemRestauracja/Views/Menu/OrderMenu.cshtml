@@ -1,0 +1,550 @@
+﻿@model OrderMenuViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="d-flex toggled" id="wrapper" style="position:fixed;">
+    <!-- Sidebar href="#dania_glowne" -->
+    <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="sidebar-heading">
+            Restauracja
+        </div>
+        <div class="list-group list-group-flush">
+            @foreach (var parentCategory in Model.CategoryList)
+            {
+                @if (parentCategory.HasChildren)
+                {
+                    <a class="list-group-item list-group-item-action bg-light" data-toggle="collapse" href="#@parentCategory.NormalizedName" role="button" aria-expanded="false" aria-controls="collapseExample">@parentCategory.Nazwa</a>
+                    <div class="collapse" id="@parentCategory.NormalizedName">
+                        <div>
+                            @foreach (var childrenCategory in Model.ChildrenCategories)
+                            {
+                                if (childrenCategory.ParentCategoryId == parentCategory.Id)
+                                {
+                                    <a class="list-group-item list-group-item-action w-75" style="font-size:0.7rem;" href="#@childrenCategory.NormalizedName">@childrenCategory.Nazwa</a>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a class="list-group-item list-group-item-action bg-light" href="#@parentCategory.NormalizedName" role="button">@parentCategory.Nazwa</a>
+                }
+            }
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Index" asp-controller="Admin" class="list-group-item list-group-item-action bg-light">Admin</a>
+            }
+
+        </div>
+    </div>
+</div>
+<div class="row w-100">
+    <div class="w-50 ml-5" style="margin-top:-20px"><h5 class="mt-4">Menu</h5></div>
+    <div class="w-25 ml-5" style="margin-top:-20px" id="zamowienia_header"><h5 class="mt-4">Obecne zamówienia</h5></div>
+</div>
+<div class="row" style="overflow:hidden; width:auto">
+
+    <!--Menu Container -->
+    <div class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;" id="myTable">
+        <!--menu kategorie - for each kategoria in daza banych nazwa kategorii; for each kategoria if kategoria.parentkategoriaid == this.kategoria id nazwa podkategorii-->
+        <hr />
+
+        @foreach (var kategoria in Model.CategoryList)
+        {
+
+            @if (kategoria.HasChildren)
+            {
+                <div>
+                    <h4>@kategoria.Nazwa</h4>
+                </div>
+                @foreach (var podkat in Model.ChildrenCategories)
+                {
+                    if (podkat.ParentCategoryId == kategoria.Id)
+                    {
+                        <div id="@podkat.NormalizedName">
+                            <h5 class="ml-2">@podkat.Nazwa</h5>
+                        </div>
+                        <!--Dania przynależące do danej kategorii-->
+
+                        @foreach (var danie in Model.Dania)
+                        {
+                            if (danie.CategoryId == podkat.Id)
+                            {
+                                <a href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2" data-toggle="modal" data-target="#exampleModal">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        @*<form class="">
+                                                <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                            </form>*@
+                                        @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
+                                        <h5 class="mb-1">@danie.Nazwa</h5>
+                                        @foreach (var ssd in Model.SymboleDoDania)
+                                        {
+                                            if (ssd.DanieId == danie.Id)
+                                            {
+                                                @foreach (var symbol in Model.Symbole)
+                                                {
+                                                    if (symbol.Id == ssd.SymbolId)
+                                                    {
+                                                        <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        @*@if (danie.CzyWeganskie)
+                                            {
+                                                <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                            }
+                                            @if (danie.CzyOstre)
+                                            {
+                                                <i class="fas fa-fire" style="color:red"></i>
+                                            }*@
+                                        @*<small>3 days ago</small>*@
+                                    </div>
+                                    <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                    <p>Cena: @danie.Cena</p>
+                                    <script>
+                                    document.getElementById('@danie.NormalizedNazwa').onclick = function ()
+                                    {
+                                        document.getElementById('modalbody').innerHTML = '@danie.OpisDania';
+                                        document.getElementById('exampleModalLabel').innerHTML = '@danie.Nazwa';
+                                        document.getElementById('footer').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button><button id="zamowienieBtn" type="submit" formaction="/Menu/AddDanieToZestaw/@danie.Id/@Model.SelectedZestawId" class="btn btn-success">Dodaj do wybranego zestawu</button>';
+                                    }
+                                    </script>
+                                </a>
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                <!--Dania nalezace do nadrzednej kategorii bez podkategorii-->
+                <div id="@kategoria.NormalizedName">
+                    <h4>@kategoria.Nazwa</h4>
+                </div>
+                @foreach (var danie in Model.Dania)
+                {
+                    if (danie.CategoryId == kategoria.Id)
+                    {
+                        <a href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2" data-toggle="modal" data-target="#exampleModal">
+                            <div class="d-flex w-100 justify-content-between">
+                                @*<form class="">
+                                        <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                    </form>*@
+                                <h5 class="mb-1">@danie.Nazwa</h5>
+                                @foreach (var ssd in Model.SymboleDoDania)
+                                {
+                                    if (ssd.DanieId == danie.Id)
+                                    {
+                                        @foreach (var symbol in Model.Symbole)
+                                        {
+                                            if (symbol.Id == ssd.SymbolId)
+                                            {
+                                                <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                            }
+                                        }
+                                    }
+                                }
+                                @*@if (danie.CzyWeganskie)
+                                    {
+                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                    }
+                                    @if (danie.CzyOstre)
+                                    {
+                                        <i class="fas fa-fire" style="color:red"></i>
+                                    }*@
+                            </div>
+                            <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                            <p>Cena: @danie.Cena</p>
+                            <script>
+                                    document.getElementById('@danie.NormalizedNazwa').onclick = function ()
+                                    {
+                                        document.getElementById('modalbody').innerHTML = '@danie.OpisDania';
+                                        document.getElementById('exampleModalLabel').innerHTML = '@danie.Nazwa';
+                                        document.getElementById('footer').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button><button id="zamowienieBtn" type="submit" formaction="/Menu/CreateNewOrder/@danie.Id" class="btn btn-secondary">Złóż nowe zamówienie...</button>';
+                                    }
+                            </script>
+                        </a>
+                    }
+                }
+            }
+            <hr />
+        }
+    </div>
+
+    <!--Zamowienia Container -->
+    <div id="zamowienia_container" class="container-fluid col list-group" style="overflow-y:scroll; height: 75vh; padding-left:25px; width:auto">
+        <!--info dot. obecnego stolika i zamowien-->
+        @foreach (var zamowienie in Model.Zamowienia)
+        {
+            @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
+            {
+                @if (Model.SelectedZamowienieId == zamowienie.Id)
+                {
+
+                    <a class="list-group-item list-group-item-success flex-column align-items-start mb-2" id="@zamowienie.NormalizedName" asp-action="SelectZamowienie" asp-route-zamowienieId="@zamowienie.Id">
+                        <div class="d-flex w-100 justify-content-between list-group">
+                            <div class="row">
+                                @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
+                                {
+                                    <form class="">
+                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id" />
+                                    </form>
+                                }
+                                <h5 class="mb-1">
+
+                                    Nr Zamowienia: @zamowienie.ZamowienieNr
+
+                                </h5>
+                            </div>
+
+                        </div>
+                        @foreach (var zestaw in Model.Zestawy)
+                        {
+                            if (zestaw.ZamowienieId == zamowienie.Id)
+                            {
+                                if (zestaw.Id == Model.SelectedZestawId)
+                                {
+                                    <div class="list-group-item list-group-item-warning flex-column align-items-start mb-2">
+                                        <div class="d-flex w-100 justify-content-between list-group">
+                                            <div class="row">
+                                                @if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Dodawany)
+                                                {
+                                                    <form class="">
+                                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
+                                                    </form>
+                                                }
+                                                <h5 class="mb-1">Zestaw</h5>
+                                            </div>
+
+                                        </div>
+                                        @foreach (var ddz in Model.DaniaDoZestawow)
+                                        {
+                                            @if (ddz.ZestawId == zestaw.Id)
+                                            {
+                                                foreach (var danie in Model.Dania)
+                                                {
+
+                                                    if (danie.Id == ddz.DanieId)
+                                                    {
+                                                        <div href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2">
+                                                            <div class="d-flex w-100 justify-content-between">
+                                                                <div class="row">
+                                                                    @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
+                                                                    {
+                                                                        <form>
+                                                                            <input type="submit" class="btn btn-outline-danger btn-sm" formmethod="post" value="X" asp-action="RemoveDanieFromZestaw" asp-controller="Menu" asp-route-ddzId="@ddz.Id" />
+                                                                        </form>
+                                                                    }
+                                                                    <h5 class="mb-1">@danie.Nazwa</h5>
+                                                                </div>
+                                                                @foreach (var ssd in Model.SymboleDoDania)
+                                                                {
+                                                                    if (ssd.DanieId == danie.Id)
+                                                                    {
+                                                                        @foreach (var symbol in Model.Symbole)
+                                                                        {
+                                                                            if (symbol.Id == ssd.SymbolId)
+                                                                            {
+                                                                                <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                                @*@if (danie.CzyWeganskie)
+                                                                    {
+                                                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                                    }
+                                                                    @if (danie.CzyOstre)
+                                                                    {
+                                                                        <i class="fas fa-fire" style="color:red"></i>
+                                                                    }*@
+                                                            </div>
+                                                            <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                                            <small>Cena: @danie.Cena</small>
+                                                        </div>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        <p>Cena za zestaw: @zestaw.CenaZestawu</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div method="post" class="list-group-item list-group-item-danger flex-column align-items-start mb-2" asp-controller="Menu" asp-action="SelectZestaw" asp-route-zestawId="@zestaw.Id">
+                                        <div class="d-flex w-100 justify-content-between list-group">
+                                            <div class="row">
+                                                @if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Dodawany)
+                                                {
+                                                    <form>
+                                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
+
+                                                        <input type="submit" class="btn btn-sm btn-outline-success" value="+" asp-action="SelectZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
+                                                    </form>
+                                                }
+                                                <h5 class="mb-1">Zestaw</h5>
+                                            </div>
+                                        </div>
+                                        @foreach (var ddz in Model.DaniaDoZestawow)
+                                        {
+                                            @if (ddz.ZestawId == zestaw.Id)
+                                            {
+                                                foreach (var danie in Model.Dania)
+                                                {
+                                                    if (danie.Id == ddz.DanieId)
+                                                    {
+                                                        <div id="@danie.NormalizedNazwa" class="list-group-item list-group-item-dark flex-column align-items-start mb-2">
+                                                            <div class="d-flex w-100 justify-content-between">
+                                                                <div class="row">
+                                                                    @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
+                                                                    {
+                                                                        <form>
+                                                                            <input type="submit" class="btn btn-outline-danger btn-sm" formmethod="post" value="X" asp-action="RemoveDanieFromZestaw" asp-controller="Menu" asp-route-ddzId="@ddz.Id" />
+                                                                        </form>
+                                                                    }
+                                                                    <h5 class="mb-1">@danie.Nazwa</h5>
+                                                                </div>
+                                                                @foreach (var ssd in Model.SymboleDoDania)
+                                                                {
+                                                                    if (ssd.DanieId == danie.Id)
+                                                                    {
+                                                                        @foreach (var symbol in Model.Symbole)
+                                                                        {
+                                                                            if (symbol.Id == ssd.SymbolId)
+                                                                            {
+                                                                                <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                                @*@if (danie.CzyWeganskie)
+                                                                    {
+                                                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                                    }
+                                                                    @if (danie.CzyOstre)
+                                                                    {
+                                                                        <i class="fas fa-fire" style="color:red"></i>
+                                                                    }*@
+                                                            </div>
+                                                            <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                                            <p>Cena: @danie.Cena</p>
+                                                        </div>
+
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                    </div>
+                                }
+                            }
+                        }
+                        @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
+                        {
+                            <form class="col">
+                                <button class="btn btn-outline-info col" asp-action="AddZestaw" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Dodaj Zestaw</button>
+                            </form>
+                            <form class="col" method="post">
+
+                                <button class="btn btn-outline-success col" asp-action="ConfirmZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Potwierdź zamówienie</button>
+                            </form>
+                        }
+                        <p>Cena za całe zamówienie: @zamowienie.CenaSuma</p>
+                    </a>
+                }
+                else
+                {
+                    <a class="list-group-item list-group-item-dark flex-column align-items-start mb-2" id="@zamowienie.NormalizedName" asp-action="SelectZamowienie" asp-route-zamowienieId="@zamowienie.Id">
+                        <div class="d-flex w-100 justify-content-between list-group">
+                            <div class="row">
+                                @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
+                                {
+                                    <form class="">
+                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id" />
+                                    </form>
+                                }
+                                <h5 class="mb-1">
+
+                                    Nr Zamowienia: @zamowienie.ZamowienieNr
+
+                                </h5>
+                            </div>
+
+                        </div>
+                        @foreach (var zestaw in Model.Zestawy)
+                        {
+                            if (zestaw.ZamowienieId == zamowienie.Id)
+                            {
+                                <div class="list-group-item list-group-item-danger flex-column align-items-start mb-2">
+                                    <div class="d-flex w-100 justify-content-between list-group">
+                                        <div class="row">
+                                            @if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Dodawany)
+                                            {
+                                                <form>
+                                                    <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
+
+                                                    <input type="submit" class="btn btn-sm btn-outline-success" value="+" asp-action="SelectZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
+                                                </form>
+                                            }
+                                            <h5 class="mb-1">Zestaw</h5>
+                                        </div>
+                                    </div>
+                                    @foreach (var ddz in Model.DaniaDoZestawow)
+                                    {
+                                        @if (ddz.ZestawId == zestaw.Id)
+                                        {
+                                            foreach (var danie in Model.Dania)
+                                            {
+                                                if (danie.Id == ddz.DanieId)
+                                                {
+                                                    <div href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2">
+                                                        <div class="d-flex w-100 justify-content-between">
+                                                            <div class="row">
+                                                                @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
+                                                                {
+                                                                    <form>
+                                                                        <input type="submit" class="btn btn-outline-danger btn-sm" formmethod="post" value="X" asp-action="RemoveDanieFromZestaw" asp-controller="Menu" asp-route-ddzId="@ddz.Id" />
+                                                                    </form>
+                                                                }
+                                                                <h5 class="mb-1">@danie.Nazwa</h5>
+                                                            </div>
+                                                            @foreach (var ssd in Model.SymboleDoDania)
+                                                            {
+                                                                if (ssd.DanieId == danie.Id)
+                                                                {
+                                                                    @foreach (var symbol in Model.Symbole)
+                                                                    {
+                                                                        if (symbol.Id == ssd.SymbolId)
+                                                                        {
+                                                                            <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            @*@if (danie.CzyWeganskie)
+                                                                {
+                                                                    <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                                }
+                                                                @if (danie.CzyOstre)
+                                                                {
+                                                                    <i class="fas fa-fire" style="color:red"></i>
+                                                                }*@
+                                                        </div>
+                                                        <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                                        <p>Cena: @danie.Cena</p>
+
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    <p>Cena za zestaw: @zestaw.CenaZestawu</p>
+                                </div>
+                            }
+                        }
+                        @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
+                        {
+                            <form class="col">
+                                <button class="btn btn-outline-info col" asp-action="AddZestaw" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Dodaj Zestaw</button>
+                            </form>
+                            <form class="col" method="post">
+
+                                <button class="btn btn-outline-success col" asp-action="ConfirmZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Potwierdź zamówienie</button>
+                            </form>
+                        }
+                        <small></small>
+                        <p>Cena za całe zamówienie: @zamowienie.CenaSuma</p>
+                    </a>
+                }
+            }
+            else
+            {
+                <div class="list-group-item list-group-item-primary flex-column align-items-start mb-2" id="@zamowienie.NormalizedName">
+                    <div class="d-flex w-100 justify-content-between list-group">
+                        <div class="row">
+                            <h5 class="mb-1">
+                                Nr Zamowienia: @zamowienie.ZamowienieNr
+                            </h5>
+                        </div>
+
+                    </div>
+                    @foreach (var zestaw in Model.Zestawy)
+                    {
+                        if (zestaw.ZamowienieId == zamowienie.Id)
+                        {
+                            <div method="post" class="list-group-item list-group-item-info flex-column align-items-start mb-2">
+                                <div class="d-flex w-100 justify-content-between list-group">
+                                    <div class="row">
+                                        <h5 class="mb-1">Zestaw</h5>
+                                    </div>
+                                </div>
+                                @foreach (var ddz in Model.DaniaDoZestawow)
+                                {
+                                    @if (ddz.ZestawId == zestaw.Id)
+                                    {
+                                        foreach (var danie in Model.Dania)
+                                        {
+                                            if (danie.Id == ddz.DanieId)
+                                            {
+                                                <div id="@danie.NormalizedNazwa" class="list-group-item list-group-item-secondary flex-column align-items-start mb-2">
+                                                    <div class="d-flex w-100 justify-content-between">
+                                                        <div class="row">
+                                                            <h5 class="mb-1">@danie.Nazwa</h5>
+                                                        </div>
+                                                        @foreach (var ssd in Model.SymboleDoDania)
+                                                        {
+                                                            if (ssd.DanieId == danie.Id)
+                                                            {
+                                                                @foreach (var symbol in Model.Symbole)
+                                                                {
+                                                                    if (symbol.Id == ssd.SymbolId)
+                                                                    {
+                                                                        <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        @*@if (danie.CzyWeganskie)
+                                                            {
+                                                                <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                            }
+                                                            @if (danie.CzyOstre)
+                                                            {
+                                                                <i class="fas fa-fire" style="color:red"></i>
+                                                            }*@
+                                                    </div>
+                                                    <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                                    <p>Cena: @danie.Cena</p>
+                                                </div>
+
+                                            }
+                                        }
+                                    }
+                                }
+
+                            </div>
+
+                        }
+                    }
+                    @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Wydane || zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Oczekujace)
+                    {
+                        <form class="col" method="post">
+
+                            <button class="btn btn-outline-success col" asp-action="CloseZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Zgłoś chęć zapłaty</button>
+                        </form>
+                    }
+                    <p>Cena za całe zamówienie: @zamowienie.CenaSuma</p>
+                </div>
+            }
+
+        }
+        <form class="col">
+            <button class="btn btn-outline-success col" formmethod="post" type="submit" asp-action="AddZamowienie" asp-controller="Menu">Dodaj Zamówienie</button>
+        </form>
+    </div>
+</div>
+

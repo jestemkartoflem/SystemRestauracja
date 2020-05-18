@@ -1,0 +1,25 @@
+﻿@model SystemRestauracja.Models.Account.LoginViewModel
+
+@{
+    ViewData["Title"] = "Strona główna";
+}
+
+<h2 class="ml-2">@ViewData["Title"]</h2>
+<div class="row ml-5">
+    <div>
+        <div>
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a class="btn btn-outline-info col" asp-action="Login" asp-controller="Account">Login</a>
+            }
+            else
+            {
+                <a class="btn btn-outline-info col" asp-action="Logout" asp-controller="Account">Logout</a>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

@@ -1,0 +1,43 @@
+﻿@model SystemRestauracja.Models.Account.LoginViewModel
+
+@{
+    ViewData["Title"] = "Panel Administratora";
+}
+
+<h2>@ViewData["Title"]</h2>
+<div class="col ml-3" style="width:90%">
+    <div>
+        tu test indeksu - bedzie tu wybor list zamowien oczekujacych, dodawanie elementow itp.
+        <div class="row">
+            <a asp-action="AddCategory" class="btn btn-outline-info col">Dodaj kategorię</a>
+        </div>
+        <div class="row">
+            <a asp-action="ShowCategories" class="btn btn-outline-success col">Wyświetl listę kategorii</a>
+        </div>
+        <div class="row">
+            <a asp-action="AddDanie" class="btn btn-outline-info col">Dodaj potrawę</a>
+        </div>
+        <div class="row">
+            <a asp-action="ShowDania" class="btn btn-outline-success col">Wyświetl listę potraw</a>
+        </div>
+        <div class="row">
+            <a asp-action="AddUserAsync" class="btn btn-outline-info col">Dodaj stolik</a>
+        </div>
+        <div class="row">
+            <a asp-action="ShowUsers" class="btn btn-outline-success col">Wyświetl listę stolików</a>
+        </div>
+        <div class="row">
+            <a asp-action="AddSymbol" class="btn btn-outline-info col">Dodaj nowy symbol do dania</a>
+        </div>
+        <div class="row">
+            <a asp-action="ShowSymbols" class="btn btn-outline-success col">Wyświetl symbole</a>
+        </div>
+        <div class="row">
+            <a asp-action="ShowPending" class="btn btn-outline-success col">Pokaż oczekujące zamówienia</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

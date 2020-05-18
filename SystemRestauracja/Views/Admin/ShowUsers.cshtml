@@ -1,0 +1,42 @@
+﻿@model SystemRestauracja.Models.Admin.ShowUsersViewModel
+@{
+    ViewData["Title"] = "Lista użytkowników";
+}
+
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+{
+    <div class="alert alert-danger">
+        @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+    </div>
+}
+
+
+<div class="container">
+    <div class="row">
+        <label class="col">Nazwa</label>
+        <label class="col">Status</label>
+        <label class="col">Edycja</label>
+        <label class="col">Usuwanie</label>
+    </div>
+</div>
+<form class="container">
+    @foreach (var user in Model.Users)
+    {
+        <div>
+            <div class="row">
+                <a class="col text-primary" role="button">@user.UserName</a>
+                <label class="col text-primary">@user.StatusStolika</label>
+                <a class="btn btn-outline-info col" asp-action="EditUserAsync" asp-controller="Admin" asp-route-userId="@user.Id">Edytuj</a>
+                @if (user.IsActive == "Not editable")
+                {
+                    <a class="btn btn-outline-danger col" disabled>Usuń</a>
+                }
+                else
+                {
+                    <input class="btn btn-outline-danger col" type="submit" asp-action="DeleteUser" asp-controller="Admin" asp-route-userId="@user.Id" value="Usuń"/>
+                }
+            </div>
+        </div>
+        <hr />
+    }
+</form>

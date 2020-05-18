@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - SystemRestauracja</title>
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
+              crossorigin="anonymous"
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=">
+        </script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o">
+        </script>
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
+    </environment>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <link rel="stylesheet" href="~/css/site.css" type="text/css" runat="server" />
+    <link rel="stylesheet" href="~/css/sidebar.css" />
+
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+</head>
+
+<body class="overflow-hidden">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+            <button class="btn btn-outline-info" id="menu-toggle">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <label class="col justify-content-center">@ViewData["username"]</label>
+            @*<button class="btn btn-success col">Zapłać za wszystkie zamówienia</button>*@
+            <input class="form-control col" id="myInput" type="text" placeholder="Search..">
+            <div class="body_ col" id="body_"><div id="timediv"></div></div>
+        </nav>
+    </header>
+    <div class="d-flex toggled" id="wrapper" style="position:fixed;">
+
+        <!-- Sidebar href="#dania_glowne" -->
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                Restauracja
+            </div>
+            <div class="list-group list-group-flush">
+                <a asp-action="OrderMenu" asp-controller="Menu" class="list-group-item list-group-item-action">Menu</a>
+                @*<a class="list-group-item list-group-item-action bg-light" data-toggle="collapse" href="#kat1collapse" role="button" aria-expanded="false" aria-controls="collapseExample">Dania główne</a>
+                    <div class="collapse" id="kat1collapse">
+                        <div>
+                            <a class="list-group-item list-group-item-action w-75" style="font-size:0.7rem;" href="#zupy" onclick="topFunction()">Zupy</a>
+                            <a class="list-group-item list-group-item-action w-75" style="font-size:0.7rem" href="#drugie_dania">Drugie dania</a>
+                        </div>
+                    </div>
+                    <a href="#przystawki" class="list-group-item list-group-item-action bg-light">Przystawki</a>
+                    <a href="#desery" class="list-group-item list-group-item-action bg-light">Desery</a>
+                    <a href="#napoje" class="list-group-item list-group-item-action bg-light">Napoje</a>*@
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Index" asp-controller="Admin" class="list-group-item list-group-item-action bg-light">Admin</a>
+                }
+            </div>
+        </div>
+        <div class="vw-100">
+            @*<partial name="_CookieConsentPartial" />*@
+            <main role="main">
+                @RenderBody()
+            </main>
+        </div>
+        <!-- /#page-content-wrapper -->
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalbody">
+                    Coś poszło nie tak.
+                </div>
+                <form>
+                    <div class="modal-footer" id="footer">
+
+                    </div>
+                    <div>
+                        <textarea class="form-control w-100" placeholder="Wpisz uwagi do zamówienia(np. bez pomidora, surówki itp)"></textarea>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $("#menu-toggle").click(function (e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+
+    </script>
+    <script>
+        var interval = setInterval(timestamphome, 1000);
+
+
+
+
+        function timestamphome() {
+            var date;
+            date = new Date();
+
+
+            var time = document.getElementById('timediv');
+            time.innerHTML = date.toLocaleTimeString();
+
+
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $("#myInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#myTable a").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

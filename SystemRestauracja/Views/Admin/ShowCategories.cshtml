@@ -1,0 +1,68 @@
+﻿@model SystemRestauracja.Models.Admin.ShowCategoriesViewModel
+@{
+    ViewData["Title"] = "Lista Kategorii";
+}
+
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+{
+    <div class="alert alert-danger">
+        @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+    </div>
+}
+
+<form class="container">
+    @foreach (var cat in Model.Kategorie)
+    {
+        <div>
+            @if (cat.HasChildren)
+            {
+                <div class="row">
+                    <a class="form-control col text-primary" role="button">@cat.Nazwa</a>
+                    <button class="btn btn-outline-info col" asp-action="EditCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Edytuj</button>
+                    <button class="btn btn-outline-danger col" asp-action="DeleteCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Usuń</button>
+                </div>
+                <div>
+                    <div>
+                        @foreach (var childrenCategory in Model.Podkategorie)
+                        {
+                            if (childrenCategory.ParentCategoryId == cat.Id)
+                            {
+                                <div class="row">
+                                    <a class="form-control col ml-5 text-secondary">@childrenCategory.Nazwa</a>
+                                    <button class="btn btn-outline-info col" type="submit" asp-action="EditCategory" asp-controller="Admin" asp-route-categoryId="@childrenCategory.Id">Edytuj</button>
+                                    <button class="btn btn-outline-danger col" type="submit" asp-action="DeleteCategory" asp-controller="Admin" asp-route-categoryId="@childrenCategory.Id">Usuń</button>
+                                </div>
+                            }
+
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <a class="form-control col text-primary">@cat.Nazwa</a>
+                    <button class="btn btn-outline-info col" asp-action="EditCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Edytuj</button>
+                    <button class="btn btn-outline-danger col" asp-action="DeleteCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Usuń</button>
+                </div>
+            }
+        </div>
+    }
+</form>
+
+@*<script>
+        $(function () {
+            $("#HasParent").click(function () {
+                if ($(this).is(":checked")) {
+                    $("#categoryChoice").show();
+                } else {
+                    $("#categoryChoice").hide();
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            $("#categoryChoice").hide();
+        });
+
+    </script>*@

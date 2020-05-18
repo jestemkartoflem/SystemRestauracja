@@ -1,0 +1,47 @@
+﻿@model SystemRestauracja.Models.Admin.UserViewModel
+@{
+    ViewData["Title"] = "Użytkownik";
+}
+<h1>@ViewData["Title"]</h1>
+
+<form class="ml-5 w-75" id="form">
+    <div class="row">
+        <input type="text" class="form-control col text-primary" asp-for="UserName" placeholder="Nazwa uzytkownika" />
+    </div>
+    <div class="row">
+        <input type="text" asp-for="Password" class="form-control col text-primary" placeholder="Nowe hasło użytkownika" />
+    </div>
+    @*<div class="row">
+            <label>Status:</label>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+                <label class="form-check-label" for="status">
+                    Default radio
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+                <label class="form-check-label" for="exampleRadios2">
+                    Second default radio
+                </label>
+            </div>
+        </div>*@
+    <div class="row">
+        <input type="submit" formmethod="post" class="btn btn-dark" value="Zatwierdź" />
+    </div>
+</form>
+
+<script>
+    $(document).on('keydown', 'input[pattern]', function (e) {
+        var input = $(this);
+        var oldVal = input.val();
+        var regex = new RegExp(input.attr('pattern'), 'g');
+
+        setTimeout(function () {
+            var newVal = input.val();
+            if (!regex.test(newVal)) {
+                input.val(oldVal);
+            }
+        }, 0);
+    });
+</script>
