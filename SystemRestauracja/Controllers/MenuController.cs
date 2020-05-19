@@ -56,7 +56,10 @@ namespace SystemRestauracja.Controllers
                 CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList(), //potrzebne do menu
                 ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).ToList(), //potrzebne do menu
                 Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).ToList(), //potrzebne do menu
-                Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
+                Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == 
+                    User.FindFirstValue(ClaimTypes.NameIdentifier) && 
+                    (x.StatusZamowienie == StatusZamowienie.Oczekujace || 
+                    x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                 Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                 DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
                 //SelectedZestawId = zestaw.Id, //zestaw do ktorego obecnie wybieramy
@@ -242,6 +245,24 @@ namespace SystemRestauracja.Controllers
         public IActionResult AddDanieToZestaw(Guid danieId, Guid zestawId)
         {
             var zestaw = _context.Zestawy.FirstOrDefault(x => x.Id == zestawId);
+            if (zestaw == null) //Wyswietl błąd - należy wybrać zestaw
+            {
+                ViewData["message"] = "Proszę wybrać zestaw do którego należy dodać danie";
+                ViewData["username"] = User.Identity.Name;
+                var model = new OrderMenuViewModel()
+                {
+                    CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList(), //potrzebne do menu
+                    ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).ToList(), //potrzebne do menu
+                    Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).ToList(), //potrzebne do menu
+                    Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
+                    Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
+                    DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
+                    Symbole = _context.Symbole.ToList(),
+                    SymboleDoDania = _context.SymboleDoDania.ToList()
+
+                };
+                return View("OrderMenu", model);
+            }
             var danie = _context.Dania.FirstOrDefault(x => x.Id == danieId);
             var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zestaw.ZamowienieId);
             var ddz = new DanieDoZestawu()

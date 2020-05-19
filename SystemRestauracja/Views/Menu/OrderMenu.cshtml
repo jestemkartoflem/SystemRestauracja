@@ -40,12 +40,16 @@
         </div>
     </div>
 </div>
+
+<div id="id-message">
+    <p class="text-danger text-center">@ViewData["message"]</p>
+</div>
+
 <div class="row w-100">
     <div class="w-50 ml-5" style="margin-top:-20px"><h5 class="mt-4">Menu</h5></div>
     <div class="w-25 ml-5" style="margin-top:-20px" id="zamowienia_header"><h5 class="mt-4">Obecne zamówienia</h5></div>
 </div>
 <div class="row" style="overflow:hidden; width:auto">
-
     <!--Menu Container -->
     <div class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;" id="myTable">
         <!--menu kategorie - for each kategoria in daza banych nazwa kategorii; for each kategoria if kategoria.parentkategoriaid == this.kategoria id nazwa podkategorii-->
@@ -75,8 +79,8 @@
                                 <a href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2" data-toggle="modal" data-target="#exampleModal">
                                     <div class="d-flex w-100 justify-content-between">
                                         @*<form class="">
-                                                <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                            </form>*@
+                                            <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                        </form>*@
                                         @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
                                         <h5 class="mb-1">@danie.Nazwa</h5>
                                         @foreach (var ssd in Model.SymboleDoDania)
@@ -93,13 +97,13 @@
                                             }
                                         }
                                         @*@if (danie.CzyWeganskie)
-                                            {
-                                                <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                            }
-                                            @if (danie.CzyOstre)
-                                            {
-                                                <i class="fas fa-fire" style="color:red"></i>
-                                            }*@
+                                        {
+                                            <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                        }
+                                        @if (danie.CzyOstre)
+                                        {
+                                            <i class="fas fa-fire" style="color:red"></i>
+                                        }*@
                                         @*<small>3 days ago</small>*@
                                     </div>
                                     <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
@@ -131,8 +135,8 @@
                         <a href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2" data-toggle="modal" data-target="#exampleModal">
                             <div class="d-flex w-100 justify-content-between">
                                 @*<form class="">
-                                        <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                    </form>*@
+                                    <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                </form>*@
                                 <h5 class="mb-1">@danie.Nazwa</h5>
                                 @foreach (var ssd in Model.SymboleDoDania)
                                 {
@@ -148,13 +152,13 @@
                                     }
                                 }
                                 @*@if (danie.CzyWeganskie)
-                                    {
-                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                    }
-                                    @if (danie.CzyOstre)
-                                    {
-                                        <i class="fas fa-fire" style="color:red"></i>
-                                    }*@
+                                {
+                                    <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                }
+                                @if (danie.CzyOstre)
+                                {
+                                    <i class="fas fa-fire" style="color:red"></i>
+                                }*@
                             </div>
                             <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
                             <p>Cena: @danie.Cena</p>
@@ -172,10 +176,11 @@
             }
             <hr />
         }
+        <div class="mt-5 mt-md-5 mt-sm-5"></div>
     </div>
 
     <!--Zamowienia Container -->
-    <div id="zamowienia_container" class="container-fluid col list-group" style="overflow-y:scroll; height: 75vh; padding-left:25px; width:auto">
+    <div id="zamowienia_container" class="container-fluid col list-group" style="overflow-y:scroll; height: 75vh; padding-left:25px; width:auto;">
         <!--info dot. obecnego stolika i zamowien-->
         @foreach (var zamowienie in Model.Zamowienia)
         {
@@ -254,13 +259,13 @@
                                                                     }
                                                                 }
                                                                 @*@if (danie.CzyWeganskie)
-                                                                    {
-                                                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                                                    }
-                                                                    @if (danie.CzyOstre)
-                                                                    {
-                                                                        <i class="fas fa-fire" style="color:red"></i>
-                                                                    }*@
+                                                                {
+                                                                    <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                                }
+                                                                @if (danie.CzyOstre)
+                                                                {
+                                                                    <i class="fas fa-fire" style="color:red"></i>
+                                                                }*@
                                                             </div>
                                                             <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
                                                             <small>Cena: @danie.Cena</small>
@@ -321,13 +326,13 @@
                                                                     }
                                                                 }
                                                                 @*@if (danie.CzyWeganskie)
-                                                                    {
-                                                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                                                    }
-                                                                    @if (danie.CzyOstre)
-                                                                    {
-                                                                        <i class="fas fa-fire" style="color:red"></i>
-                                                                    }*@
+                                                                {
+                                                                    <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                                }
+                                                                @if (danie.CzyOstre)
+                                                                {
+                                                                    <i class="fas fa-fire" style="color:red"></i>
+                                                                }*@
                                                             </div>
                                                             <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
                                                             <p>Cena: @danie.Cena</p>
@@ -425,13 +430,13 @@
                                                                 }
                                                             }
                                                             @*@if (danie.CzyWeganskie)
-                                                                {
-                                                                    <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                                                }
-                                                                @if (danie.CzyOstre)
-                                                                {
-                                                                    <i class="fas fa-fire" style="color:red"></i>
-                                                                }*@
+                                                            {
+                                                                <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                            }
+                                                            @if (danie.CzyOstre)
+                                                            {
+                                                                <i class="fas fa-fire" style="color:red"></i>
+                                                            }*@
                                                         </div>
                                                         <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
                                                         <p>Cena: @danie.Cena</p>
@@ -509,13 +514,13 @@
                                                             }
                                                         }
                                                         @*@if (danie.CzyWeganskie)
-                                                            {
-                                                                <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                                            }
-                                                            @if (danie.CzyOstre)
-                                                            {
-                                                                <i class="fas fa-fire" style="color:red"></i>
-                                                            }*@
+                                                        {
+                                                            <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                        }
+                                                        @if (danie.CzyOstre)
+                                                        {
+                                                            <i class="fas fa-fire" style="color:red"></i>
+                                                        }*@
                                                     </div>
                                                     <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
                                                     <p>Cena: @danie.Cena</p>
@@ -542,9 +547,11 @@
             }
 
         }
+
         <form class="col">
             <button class="btn btn-outline-success col" formmethod="post" type="submit" asp-action="AddZamowienie" asp-controller="Menu">Dodaj Zamówienie</button>
         </form>
+        <div class="mt-5 mt-md-5 mt-sm-5"></div>
     </div>
 </div>
 

@@ -19,7 +19,6 @@ D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcorea
 D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\SystemRestauracja.dll
 D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\SystemRestauracja.pdb
 D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\SystemRestauracja.csproj.CopyComplete
-D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\SystemRestauracja.csproj.CoreCompileInputs.cache
 D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\Razor\Views\Admin\AddCategory.g.cshtml.cs
 D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\Razor\Views\Home\Index.g.cshtml.cs
 D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\Razor\Views\Shared\Error.g.cshtml.cs
