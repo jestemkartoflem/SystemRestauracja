@@ -5,11 +5,6 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Migrations\20200107114820_FixedIsActiveFlagFromStringToBoolean.cs" />
-    <Compile Remove="Migrations\20200107114820_FixedIsActiveFlagFromStringToBoolean.Designer.cs" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />

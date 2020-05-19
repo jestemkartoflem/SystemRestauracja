@@ -167,7 +167,7 @@
                                     {
                                         document.getElementById('modalbody').innerHTML = '@danie.OpisDania';
                                         document.getElementById('exampleModalLabel').innerHTML = '@danie.Nazwa';
-                                        document.getElementById('footer').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button><button id="zamowienieBtn" type="submit" formaction="/Menu/CreateNewOrder/@danie.Id" class="btn btn-secondary">Złóż nowe zamówienie...</button>';
+                                        document.getElementById('footer').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button><button id="zamowienieBtn" type="submit" formaction="/Menu/AddDanieToZestaw/@danie.Id/@Model.SelectedZestawId" class="btn btn-success">Dodaj do wybranego zestawu</button>';
                                     }
                             </script>
                         </a>

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SystemRestauracja.Migrations
 {
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -41,30 +41,12 @@ namespace SystemRestauracja.Migrations
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
-                    StatusStolika = table.Column<int>(nullable: false)
+                    StatusStolika = table.Column<int>(nullable: false),
+                    IsActive = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Dania",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    CreateDate = table.Column<DateTime>(nullable: false),
-                    CreatedBy = table.Column<string>(nullable: true),
-                    DeleteDate = table.Column<DateTime>(nullable: true),
-                    DeletedBy = table.Column<string>(nullable: true),
-                    Nazwa = table.Column<string>(nullable: true),
-                    CzyWeganskie = table.Column<bool>(nullable: false),
-                    CzyOstre = table.Column<bool>(nullable: false),
-                    Cena = table.Column<decimal>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Dania", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -75,9 +57,8 @@ namespace SystemRestauracja.Migrations
                     CreateDate = table.Column<DateTime>(nullable: false),
                     CreatedBy = table.Column<string>(nullable: true),
                     DeleteDate = table.Column<DateTime>(nullable: true),
-                    DeletedBy = table.Column<string>(nullable: true),
                     Nazwa = table.Column<string>(nullable: true),
-                    Whitespaceless = table.Column<string>(nullable: true),
+                    NormalizedName = table.Column<string>(nullable: true),
                     ParentCategoryId = table.Column<Guid>(nullable: true),
                     HasChildren = table.Column<bool>(nullable: false)
                 },
@@ -90,6 +71,23 @@ namespace SystemRestauracja.Migrations
                         principalTable: "Kategorie",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Symbole",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    CreateDate = table.Column<DateTime>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    DeleteDate = table.Column<DateTime>(nullable: true),
+                    Nazwa = table.Column<string>(nullable: true),
+                    FontId = table.Column<string>(nullable: true),
+                    Color = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Symbole", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -206,10 +204,11 @@ namespace SystemRestauracja.Migrations
                     CreateDate = table.Column<DateTime>(nullable: false),
                     CreatedBy = table.Column<string>(nullable: true),
                     DeleteDate = table.Column<DateTime>(nullable: true),
-                    DeletedBy = table.Column<string>(nullable: true),
                     StatusZamowienie = table.Column<int>(nullable: false),
+                    NormalizedName = table.Column<string>(nullable: true),
+                    ZamowienieNr = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     CenaSuma = table.Column<decimal>(nullable: false),
-                    IdZamawiajacego = table.Column<Guid>(nullable: false),
                     ZamawiajacyId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -224,6 +223,32 @@ namespace SystemRestauracja.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Dania",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    CreateDate = table.Column<DateTime>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    DeleteDate = table.Column<DateTime>(nullable: true),
+                    Nazwa = table.Column<string>(nullable: true),
+                    NormalizedNazwa = table.Column<string>(nullable: true),
+                    OpisDania = table.Column<string>(nullable: true),
+                    CzyUpublicznione = table.Column<bool>(nullable: false),
+                    Cena = table.Column<decimal>(nullable: false),
+                    CategoryId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Dania", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Dania_Kategorie_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Kategorie",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Zestawy",
                 columns: table => new
                 {
@@ -231,21 +256,55 @@ namespace SystemRestauracja.Migrations
                     CreateDate = table.Column<DateTime>(nullable: false),
                     CreatedBy = table.Column<string>(nullable: true),
                     DeleteDate = table.Column<DateTime>(nullable: true),
-                    DeletedBy = table.Column<string>(nullable: true),
                     StatusZestawu = table.Column<int>(nullable: false),
+                    NormalizedName = table.Column<string>(nullable: true),
                     CenaZestawu = table.Column<decimal>(nullable: false),
-                    IdZamowienia = table.Column<Guid>(nullable: false),
-                    ZamowienieId = table.Column<Guid>(nullable: true)
+                    ZamowienieId = table.Column<Guid>(nullable: false),
+                    ZamawiajacyId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Zestawy", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Zestawy_AspNetUsers_ZamawiajacyId",
+                        column: x => x.ZamawiajacyId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_Zestawy_Zamowienia_ZamowienieId",
                         column: x => x.ZamowienieId,
                         principalTable: "Zamowienia",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SymboleDoDania",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    CreateDate = table.Column<DateTime>(nullable: false),
+                    CreatedBy = table.Column<string>(nullable: true),
+                    DeleteDate = table.Column<DateTime>(nullable: true),
+                    DanieId = table.Column<Guid>(nullable: false),
+                    SymbolId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SymboleDoDania", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SymboleDoDania_Dania_DanieId",
+                        column: x => x.DanieId,
+                        principalTable: "Dania",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SymboleDoDania_Symbole_SymbolId",
+                        column: x => x.SymbolId,
+                        principalTable: "Symbole",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -256,11 +315,9 @@ namespace SystemRestauracja.Migrations
                     CreateDate = table.Column<DateTime>(nullable: false),
                     CreatedBy = table.Column<string>(nullable: true),
                     DeleteDate = table.Column<DateTime>(nullable: true),
-                    DeletedBy = table.Column<string>(nullable: true),
-                    IdZestaw = table.Column<Guid>(nullable: false),
-                    ZestawId = table.Column<Guid>(nullable: true),
-                    IdDanie = table.Column<Guid>(nullable: false),
-                    DanieId = table.Column<Guid>(nullable: true),
+                    ZestawId = table.Column<Guid>(nullable: false),
+                    DanieId = table.Column<Guid>(nullable: false),
+                    UserId = table.Column<string>(nullable: true),
                     Notatka = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -271,13 +328,19 @@ namespace SystemRestauracja.Migrations
                         column: x => x.DanieId,
                         principalTable: "Dania",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DaniaDoZestawu_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_DaniaDoZestawu_Zestawy_ZestawId",
                         column: x => x.ZestawId,
                         principalTable: "Zestawy",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -320,9 +383,19 @@ namespace SystemRestauracja.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Dania_CategoryId",
+                table: "Dania",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DaniaDoZestawu_DanieId",
                 table: "DaniaDoZestawu",
                 column: "DanieId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DaniaDoZestawu_UserId",
+                table: "DaniaDoZestawu",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DaniaDoZestawu_ZestawId",
@@ -335,8 +408,23 @@ namespace SystemRestauracja.Migrations
                 column: "ParentCategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SymboleDoDania_DanieId",
+                table: "SymboleDoDania",
+                column: "DanieId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SymboleDoDania_SymbolId",
+                table: "SymboleDoDania",
+                column: "SymbolId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Zamowienia_ZamawiajacyId",
                 table: "Zamowienia",
+                column: "ZamawiajacyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Zestawy_ZamawiajacyId",
+                table: "Zestawy",
                 column: "ZamawiajacyId");
 
             migrationBuilder.CreateIndex(
@@ -366,19 +454,25 @@ namespace SystemRestauracja.Migrations
                 name: "DaniaDoZestawu");
 
             migrationBuilder.DropTable(
-                name: "Kategorie");
+                name: "SymboleDoDania");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Dania");
-
-            migrationBuilder.DropTable(
                 name: "Zestawy");
 
             migrationBuilder.DropTable(
+                name: "Dania");
+
+            migrationBuilder.DropTable(
+                name: "Symbole");
+
+            migrationBuilder.DropTable(
                 name: "Zamowienia");
+
+            migrationBuilder.DropTable(
+                name: "Kategorie");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

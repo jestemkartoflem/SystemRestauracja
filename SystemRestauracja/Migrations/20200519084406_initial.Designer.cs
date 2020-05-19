@@ -10,8 +10,8 @@ using SystemRestauracja.Data;
 namespace SystemRestauracja.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20200108012359_IdFixAttemptAtOrderSecondTry")]
-    partial class IdFixAttemptAtOrderSecondTry
+    [Migration("20200519084406_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -144,11 +144,9 @@ namespace SystemRestauracja.Migrations
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<bool>("CzyOstre");
-
                     b.Property<bool>("CzyUpublicznione");
 
-                    b.Property<bool>("CzyWeganskie");
+                    b.Property<DateTime?>("DeleteDate");
 
                     b.Property<string>("Nazwa");
 
@@ -172,19 +170,21 @@ namespace SystemRestauracja.Migrations
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<Guid?>("DanieId");
+                    b.Property<Guid>("DanieId");
 
-                    b.Property<Guid>("IdDanie");
-
-                    b.Property<Guid>("IdZestaw");
+                    b.Property<DateTime?>("DeleteDate");
 
                     b.Property<string>("Notatka");
 
-                    b.Property<Guid?>("ZestawId");
+                    b.Property<string>("UserId");
+
+                    b.Property<Guid>("ZestawId");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DanieId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("ZestawId");
 
@@ -200,6 +200,8 @@ namespace SystemRestauracja.Migrations
 
                     b.Property<string>("CreatedBy");
 
+                    b.Property<DateTime?>("DeleteDate");
+
                     b.Property<bool>("HasChildren");
 
                     b.Property<string>("Nazwa");
@@ -213,6 +215,52 @@ namespace SystemRestauracja.Migrations
                     b.HasIndex("ParentCategoryId");
 
                     b.ToTable("Kategorie");
+                });
+
+            modelBuilder.Entity("SystemRestauracja.Data.Symbol", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Color");
+
+                    b.Property<DateTime>("CreateDate");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTime?>("DeleteDate");
+
+                    b.Property<string>("FontId");
+
+                    b.Property<string>("Nazwa");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Symbole");
+                });
+
+            modelBuilder.Entity("SystemRestauracja.Data.SymbolDoDania", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("CreateDate");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<Guid>("DanieId");
+
+                    b.Property<DateTime?>("DeleteDate");
+
+                    b.Property<Guid>("SymbolId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DanieId");
+
+                    b.HasIndex("SymbolId");
+
+                    b.ToTable("SymboleDoDania");
                 });
 
             modelBuilder.Entity("SystemRestauracja.Data.UserAccount", b =>
@@ -281,13 +329,21 @@ namespace SystemRestauracja.Migrations
 
                     b.Property<string>("CreatedBy");
 
+                    b.Property<DateTime?>("DeleteDate");
+
+                    b.Property<string>("NormalizedName");
+
                     b.Property<int>("StatusZamowienie");
 
-                    b.Property<Guid>("ZamawiajacyId");
+                    b.Property<string>("ZamawiajacyId");
 
-                    b.Property<int>("ZamowienieNr");
+                    b.Property<int>("ZamowienieNr")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ZamawiajacyId");
 
                     b.ToTable("Zamowienia");
                 });
@@ -303,13 +359,19 @@ namespace SystemRestauracja.Migrations
 
                     b.Property<string>("CreatedBy");
 
+                    b.Property<DateTime?>("DeleteDate");
+
+                    b.Property<string>("NormalizedName");
+
                     b.Property<int>("StatusZestawu");
 
-                    b.Property<Guid>("ZamawiajacyId");
+                    b.Property<string>("ZamawiajacyId");
 
                     b.Property<Guid>("ZamowienieId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ZamawiajacyId");
 
                     b.HasIndex("ZamowienieId");
 
@@ -373,11 +435,17 @@ namespace SystemRestauracja.Migrations
                 {
                     b.HasOne("SystemRestauracja.Data.Danie", "Danie")
                         .WithMany()
-                        .HasForeignKey("DanieId");
+                        .HasForeignKey("DanieId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SystemRestauracja.Data.UserAccount", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.HasOne("SystemRestauracja.Data.Zestaw", "Zestaw")
                         .WithMany()
-                        .HasForeignKey("ZestawId");
+                        .HasForeignKey("ZestawId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("SystemRestauracja.Data.Kategoria", b =>
@@ -387,8 +455,32 @@ namespace SystemRestauracja.Migrations
                         .HasForeignKey("ParentCategoryId");
                 });
 
+            modelBuilder.Entity("SystemRestauracja.Data.SymbolDoDania", b =>
+                {
+                    b.HasOne("SystemRestauracja.Data.Danie", "Danie")
+                        .WithMany()
+                        .HasForeignKey("DanieId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SystemRestauracja.Data.Symbol", "Symbol")
+                        .WithMany()
+                        .HasForeignKey("SymbolId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("SystemRestauracja.Data.Zamowienie", b =>
+                {
+                    b.HasOne("SystemRestauracja.Data.UserAccount", "Zamawiajacy")
+                        .WithMany()
+                        .HasForeignKey("ZamawiajacyId");
+                });
+
             modelBuilder.Entity("SystemRestauracja.Data.Zestaw", b =>
                 {
+                    b.HasOne("SystemRestauracja.Data.UserAccount", "Zamawiajacy")
+                        .WithMany()
+                        .HasForeignKey("ZamawiajacyId");
+
                     b.HasOne("SystemRestauracja.Data.Zamowienie", "Zamowienie")
                         .WithMany()
                         .HasForeignKey("ZamowienieId")
