@@ -330,16 +330,113 @@ namespace SystemRestauracja.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpGet]
-        public IActionResult ShowDania()
+        //[HttpGet]
+        public IActionResult ShowDania(string sortOrder, string searchString, string currentFilter, int page = 1, int pageSize = 10)
         {
-            ShowDaniaViewModel model = new ShowDaniaViewModel()
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.SearchString = searchString;
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.DateSortParm = sortOrder == "date" ? "date_desc" : "date";
+            ViewBag.CatSortParm = sortOrder == "cat" ? "cat_desc" : "cat";
+            ViewBag.PriceSortParm = sortOrder == "price" ? "price_desc" : "price";
+            decimal total = ((decimal)_context.Dania.Count() / (decimal)pageSize);
+            ShowDaniaViewModel model;
+            if (searchString != null)
             {
-                Dania = _context.Dania.ToList(),
-                Kategorie = _context.Kategorie.ToList(),
-                SymboleDoDania = _context.SymboleDoDania.ToList(),
-                Symbole = _context.Symbole.ToList()
-            };
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewBag.CurrentFilter = searchString;
+            switch(sortOrder)
+            {
+                case "name_desc":
+                    model = new ShowDaniaViewModel()
+                    {
+                        Dania = _context.Dania.OrderByDescending(x => x.Nazwa).ToList(),
+                        Kategorie = _context.Kategorie.ToList(),
+                        SymboleDoDania = _context.SymboleDoDania.ToList(),
+                        Symbole = _context.Symbole.ToList()
+                    };
+                    break;
+                case "date":
+                    model = new ShowDaniaViewModel()
+                    {
+                        Dania = _context.Dania.OrderBy(x => x.CreateDate).ToList(),
+                        Kategorie = _context.Kategorie.ToList(),
+                        SymboleDoDania = _context.SymboleDoDania.ToList(),
+                        Symbole = _context.Symbole.ToList()
+                    };
+                    break;
+                case "date_desc":
+                    model = new ShowDaniaViewModel()
+                    {
+                        Dania = _context.Dania.OrderByDescending(x => x.CreateDate).ToList(),
+                        Kategorie = _context.Kategorie.ToList(),
+                        SymboleDoDania = _context.SymboleDoDania.ToList(),
+                        Symbole = _context.Symbole.ToList()
+                    };
+                    break;
+                case "price":
+                    model = new ShowDaniaViewModel()
+                    {
+                        Dania = _context.Dania.OrderBy(x => x.Cena).ToList(),
+                        Kategorie = _context.Kategorie.ToList(),
+                        SymboleDoDania = _context.SymboleDoDania.ToList(),
+                        Symbole = _context.Symbole.ToList()
+                    };
+                    break;
+                case "price_desc":
+                    model = new ShowDaniaViewModel()
+                    {
+                        Dania = _context.Dania.OrderByDescending(x => x.Cena).ToList(),
+                        Kategorie = _context.Kategorie.ToList(),
+                        SymboleDoDania = _context.SymboleDoDania.ToList(),
+                        Symbole = _context.Symbole.ToList()
+                    };
+                    break;
+                case "cat":
+                    model = new ShowDaniaViewModel()
+                    {
+                        Dania = _context.Dania.OrderBy(x=>x.Category.Nazwa).ToList(),
+                        Kategorie = _context.Kategorie.ToList(),
+                        SymboleDoDania = _context.SymboleDoDania.ToList(),
+                        Symbole = _context.Symbole.ToList()
+                    };
+                    break;
+                case "cat_desc":
+                    model = new ShowDaniaViewModel()
+                    {
+                        Dania = _context.Dania.OrderByDescending(x => x.Category.Nazwa).ToList(),
+                        Kategorie = _context.Kategorie.ToList(),
+                        SymboleDoDania = _context.SymboleDoDania.ToList(),
+                        Symbole = _context.Symbole.ToList()
+                    };
+                    break;
+                default:
+                    model = new ShowDaniaViewModel()
+                    {
+                        Dania = _context.Dania.OrderBy(x => x.Nazwa).ToList(),
+                        Kategorie = _context.Kategorie.ToList(),
+                        SymboleDoDania = _context.SymboleDoDania.ToList(),
+                        Symbole = _context.Symbole.ToList()
+                    };
+                    break;
+            }
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToLower();
+                model.Dania = model.Dania.Where(x => x.Nazwa.ToLower().Contains(searchString)).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                total = ((decimal)(model.Dania.Count())) / (decimal)pageSize;
+            }
+
+            model.currentPage = page;
+            model.pageSize = pageSize;
+            model.totalPages = (int)Math.Ceiling(total);
+
             return View(model);
         }
 

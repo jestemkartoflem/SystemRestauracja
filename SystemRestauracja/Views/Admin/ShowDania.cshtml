@@ -5,21 +5,29 @@
 
 @if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
 {
-<div class="alert alert-danger">
-    @ViewData.ModelState["Error"].Errors.First().ErrorMessage
-</div>
+    <div class="alert alert-danger">
+        @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+    </div>
 }
 
+
+<div class="container w-25 mt-2 mb-2">
+    <form asp-controller="Admin" asp-action="ShowDania" class="row">
+        <input id="searchString" name="searchString" type="text" placeholder="Wyszukaj po nazwie" class="form-control col">
+        <button type="submit" runat="server" class="btn btn-dark mr-5">Szukaj</button>
+    </form>
+</div>
 
 <div class="container">
     <div class="row">
         <label class="col w-25"></label>
-        <label class="col">Nazwa</label>
-        <label class="col">Kategoria</label>
-        <label class="col">Cena</label>
+        <label class="col">@Html.ActionLink("Nazwa", "ShowDania", new { sortOrder = ViewBag.NameSortParm })</label>
+        <label class="col">@Html.ActionLink("Kategoria", "ShowDania", new { sortOrder = ViewBag.CatSortParm })</label>
+        <label class="col">@Html.ActionLink("Cena", "ShowDania", new { sortOrder = ViewBag.PriceSortParm })</label>
         @*<label class="col">Weganskie</label>
-        <label class="col">Ostre</label>*@
+            <label class="col">Ostre</label>*@
         <label class="col">Opublikowane</label>
+        <label class="col">@Html.ActionLink("Data utworzenia", "ShowDania", new { sortOrder = ViewBag.DateSortParm })</label>
         <label class="col">Edycja</label>
         <label class="col">Usuwanie</label>
     </div>
@@ -27,27 +35,47 @@
 <form class="container">
     @foreach (var danie in Model.Dania)
     {
-    <div>
-        <div class="row">
-            <i class="col w-25 btn btn-outline-info">?</i>
-            <a class="col text-primary" role="button">@danie.Nazwa</a>
-            <label class="col text-primary">
-                @foreach(var cat in Model.Kategorie)
-                {
-                    if(cat.Id==danie.CategoryId)
+        <div>
+            <div class="row">
+                <i class="col w-25 btn btn-outline-info">?</i>
+                <a class="col text-primary" role="button">@danie.Nazwa</a>
+                <label class="col text-primary">
+                    @foreach (var cat in Model.Kategorie)
                     {
-                        <div>@cat.Nazwa</div>
+                        if (cat.Id == danie.CategoryId)
+                        {
+                            <div>@cat.Nazwa</div>
+                        }
                     }
-                }
+                </label>
+                <label class="col text-primary">@danie.Cena</label>
+                @*<label class="col text-primary">@if(danie.CzyWeganskie) {<div>x</div>;}</label>
+                    <label class="col text-primary">@if(danie.CzyOstre) {<div>x</div>;}</label>*@
+                <label class="col text-primary">
+                    @if (danie.CzyUpublicznione)
+                    {<div>x</div>;
+                    }
             </label>
-            <label class="col text-primary">@danie.Cena</label>
-            @*<label class="col text-primary">@if(danie.CzyWeganskie) {<div>x</div>;}</label>
-            <label class="col text-primary">@if(danie.CzyOstre) {<div>x</div>;}</label>*@
-            <label class="col text-primary">@if(danie.CzyUpublicznione) {<div>x</div>;}</label>
+            <label class="col text-secondary">@danie.CreateDate</label>
             <a class="btn btn-outline-info col" asp-action="EditDanie" asp-controller="Admin" asp-route-danieId="@danie.Id">Edytuj</a>
             <a class="btn btn-outline-danger col" asp-action="DeleteDanie" asp-controller="Admin" asp-route-danieId="@danie.Id">Usuń</a>
         </div>
     </div>
     <hr />
-    }
+}
 </form>
+
+<div>
+    <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
+</div>
+
+<div class="justify-content-center row">
+    <ul class="pagination">
+        @for (int i = 1; i <= Model.totalPages; i++)
+        {
+            <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
+                <a class="page-link" href="@Url.Action("ShowCategories", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+            </li>
+        }
+    </ul>
+</div>

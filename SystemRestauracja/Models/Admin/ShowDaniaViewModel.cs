@@ -12,5 +12,9 @@ namespace SystemRestauracja.Models.Admin
         public List<Kategoria> Kategorie { get; set; }
         public List<SymbolDoDania> SymboleDoDania { get; set; }
         public List<Symbol> Symbole { get; set; }
+
+        public int currentPage;
+        public int pageSize;
+        public int totalPages;
     }
 }
