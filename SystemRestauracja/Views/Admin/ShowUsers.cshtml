@@ -10,11 +10,21 @@
     </div>
 }
 
+<div class="justify-content-center">
+    <h2 class="text-dark text-center">Użytkownicy</h2>
+</div>
+
+<div class="container w-25 mt-2 mb-2">
+    <form asp-controller="Admin" asp-action="ShowUsers" class="row">
+        <input id="searchString" name="searchString" type="text" placeholder="Wyszukaj po nazwie" class="form-control col">
+        <button type="submit" runat="server" class="btn btn-dark mr-5">Szukaj</button>
+    </form>
+</div>
 
 <div class="container">
     <div class="row">
-        <label class="col">Nazwa</label>
-        <label class="col">Status</label>
+        <label class="col">@Html.ActionLink("Nazwa", "ShowUsers", new { sortOrder = ViewBag.NameSortParm })</label>
+        <label class="col">@Html.ActionLink("Status", "ShowUsers", new { sortOrder = ViewBag.StatusSortParm })</label>
         <label class="col">Edycja</label>
         <label class="col">Usuwanie</label>
     </div>
@@ -33,10 +43,25 @@
                 }
                 else
                 {
-                    <input class="btn btn-outline-danger col" type="submit" asp-action="DeleteUser" asp-controller="Admin" asp-route-userId="@user.Id" value="Usuń"/>
+                    <input class="btn btn-outline-danger col" type="submit" asp-action="DeleteUser" asp-controller="Admin" asp-route-userId="@user.Id" value="Usuń" />
                 }
             </div>
         </div>
         <hr />
     }
 </form>
+
+<div>
+    <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
+</div>
+
+<div class="justify-content-center row">
+    <ul class="pagination">
+        @for (int i = 1; i <= Model.totalPages; i++)
+        {
+            <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
+                <a class="page-link" href="@Url.Action("ShowCategories", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+            </li>
+        }
+    </ul>
+</div>

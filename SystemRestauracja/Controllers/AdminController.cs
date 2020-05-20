@@ -590,12 +590,63 @@ namespace SystemRestauracja.Controllers
         }
 
         [HttpGet]
-        public IActionResult ShowUsers()
+        public IActionResult ShowUsers(string sortOrder, string searchString, string currentFilter, int page = 1, int pageSize = 10)
         {
-            ShowUsersViewModel model = new ShowUsersViewModel()
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.SearchString = searchString;
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.StatusSortParm = sortOrder == "stat" ? "stat_desc" : "stat";
+            decimal total = ((decimal)_context.Users.Count() / (decimal)pageSize);
+            ShowUsersViewModel model;
+            if (searchString != null)
             {
-                Users = _context.Users.Where(x => x.IsActive != "false").ToList()
-            };
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewBag.CurrentFilter = searchString;
+
+            switch(sortOrder)
+            {
+                case "name_desc":
+                    model = new ShowUsersViewModel()
+                    {
+                        Users = _context.Users.OrderByDescending(x => x.UserName).ToList()
+                    };
+                    break;
+                case "stat":
+                    model = new ShowUsersViewModel()
+                    {
+                        Users = _context.Users.OrderBy(x => x.StatusStolika).ToList()
+                    };
+                    break;
+                case "stat_desc":
+                    model = new ShowUsersViewModel()
+                    {
+                        Users = _context.Users.OrderByDescending(x => x.StatusStolika).ToList()
+                    };
+                    break;
+                default:
+                    model = new ShowUsersViewModel()
+                    {
+                        Users = _context.Users.OrderByDescending(x => x.UserName).ToList()
+                    };
+                    break;
+            }
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToLower();
+                model.Users = model.Users.Where(x => x.UserName.ToLower().Contains(searchString)).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                total = ((decimal)(model.Users.Count())) / (decimal)pageSize;
+            }
+
+            model.currentPage = page;
+            model.pageSize = pageSize;
+            model.totalPages = (int)Math.Ceiling(total);
+
             return View(model);
         }
 

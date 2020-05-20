@@ -9,5 +9,9 @@ namespace SystemRestauracja.Models.Admin
     public class ShowUsersViewModel
     {
         public List<UserAccount> Users { get; set; }
+
+        public int currentPage;
+        public int pageSize;
+        public int totalPages;
     }
 }
