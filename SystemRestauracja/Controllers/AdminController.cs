@@ -713,16 +713,112 @@ namespace SystemRestauracja.Controllers
         }
 
         [HttpGet]
-        public IActionResult ShowPending()
+        public IActionResult ShowPending(string sortOrder, string currentFilter, int page = 1, int pageSize = 10)
         {
-            var model = new ShowPendingViewModel()
+
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.PriceSortParm = sortOrder=="price" ? "price_desc" : "price";
+            ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date" : "date_desc"; //domyślnie od najstarszego zamówienia
+            ViewBag.StatusSortParm = sortOrder == "stat" ? "stat_desc" : "stat";
+            ViewBag.TableSortParm = sortOrder == "table" ? "table_desc" : "table";
+            decimal total = ((decimal)_context.Users.Count() / (decimal)pageSize);
+            ShowPendingViewModel model;
+
+            switch (sortOrder)
             {
-                Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane).OrderBy(x => x.CreateDate).Take(10).ToList(),
-                Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
-                Dania = _context.Dania.ToList(),
-                DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
-                Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
-            };
+                case "price":
+                    model = new ShowPendingViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .OrderBy(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "price_desc":
+                    model = new ShowPendingViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .OrderByDescending(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "stat":
+                    model = new ShowPendingViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .OrderBy(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "stat_desc":
+                    model = new ShowPendingViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .OrderByDescending(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "date_desc":
+                    model = new ShowPendingViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .OrderBy(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "table_desc":
+                    model = new ShowPendingViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .OrderByDescending(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "table":
+                    model = new ShowPendingViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .OrderBy(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                default:
+                    model = new ShowPendingViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .OrderByDescending(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+            }
+
+            model.currentPage = page;
+            model.pageSize = pageSize;
+            model.totalPages = (int)Math.Ceiling(total);
 
             return View(model);
         }

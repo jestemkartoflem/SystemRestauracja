@@ -9,16 +9,14 @@
     <div class="col">
         Nr zamowienia
     </div>
-    <div class="col">
-        Cena
-    </div>
-    <div class="col">
-        Użytkownik
-    </div>
-    <div class="col">
-        Status
-    </div>
-    <div class="col"></div>
+    <label class="col">@Html.ActionLink("Cena", "ShowPending", new { sortOrder = ViewBag.PriceSortParm })</label>
+
+    <label class="col">@Html.ActionLink("Użytkownik", "ShowPending", new { sortOrder = ViewBag.TableSortParm })</label>
+
+
+    <label class="col">@Html.ActionLink("Status", "ShowPending", new { sortOrder = ViewBag.StatusSortParm })</label>
+
+    <label class="col">@Html.ActionLink("Data", "ShowPending", new { sortOrder = ViewBag.DateSortParm })</label>
 </div>
 <div class="list-group ml-3">
     @foreach (var zamowienie in Model.Zamowienia)
@@ -160,8 +158,25 @@
     }
 </div>
 
+<div>
+    <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
+</div>
+
+<div class="justify-content-center row">
+    <ul class="pagination">
+        @for (int i = 1; i <= Model.totalPages; i++)
+        {
+            <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
+                <a class="page-link" href="@Url.Action("ShowPending", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+            </li>
+        }
+    </ul>
+</div>
+
 <script>
     //setTimeout(function () {
     //    window.location.reload(1);
     //}, 10000);
 </script>
+
+
