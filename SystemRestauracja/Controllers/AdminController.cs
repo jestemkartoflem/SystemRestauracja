@@ -91,14 +91,73 @@ namespace SystemRestauracja.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpGet]
-        public IActionResult ShowCategories()
+        //[HttpGet]
+        public IActionResult ShowCategories(string sortOrder, string searchString, string currentFilter, int page=1, int pageSize=10)
         {
-            ShowCategoriesViewModel model = new ShowCategoriesViewModel()
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.SearchString = searchString;
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.DateSortParm = sortOrder == "date" ? "date_desc" : "date";
+            decimal total = ((decimal)_context.Kategorie.Count() / (decimal)pageSize);
+            ShowCategoriesViewModel model;
+            if(searchString!=null)
             {
-                Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(),
-                Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList()
-            };
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+            ViewBag.CurrentFilter = searchString;
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    model = new ShowCategoriesViewModel()
+                    {
+                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderByDescending(x => x.Nazwa).Skip((page-1)*pageSize).Take(pageSize).ToList(),
+                        Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderByDescending(x => x.Nazwa).ToList()
+                    };
+                    break;
+                case "date":
+                    model = new ShowCategoriesViewModel()
+                    {
+                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.CreateDate).ToList()
+                    };
+                    break;
+                case "date_desc":
+                    model = new ShowCategoriesViewModel()
+                    {
+                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderByDescending(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderByDescending(x => x.CreateDate).ToList()
+                    };
+                    break;
+                default:
+                    model = new ShowCategoriesViewModel()
+                    {
+                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList()
+                    };
+                    break;
+            }
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToLower();
+                model.Kategorie = model.Kategorie.Concat(model.Podkategorie).ToList();
+                model.Kategorie = model.Kategorie.Where(x => x.Nazwa.ToLower().Contains(searchString)).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                total = ((decimal)(model.Kategorie.Count())) / (decimal)pageSize;
+            }
+
+            model.currentPage = page;
+            model.pageSize = pageSize;
+            model.totalPages = (int)Math.Ceiling(total);
+
+            //ShowCategoriesViewModel model = new ShowCategoriesViewModel()
+            //{
+            //    Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderByDescending(x => x.Nazwa).ToList(),
+            //    Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderByDescending(x => x.Nazwa).ToList()
+            //};
             return View(model);
         }
 
@@ -191,9 +250,9 @@ namespace SystemRestauracja.Controllers
                     var parentCat = _context.Kategorie.FirstOrDefault(x => x.Id == catToEdit.ParentCategoryId);
                     var childrencat = _context.Kategorie.Where(x => x.ParentCategoryId == parentCat.Id);
                     bool stillHasChildren = false;
-                    foreach(var ccat in childrencat)
+                    foreach (var ccat in childrencat)
                     {
-                        if(ccat.ParentCategoryId==parentCat.Id)
+                        if (ccat.ParentCategoryId == parentCat.Id)
                         {
                             stillHasChildren = true;
                         }
@@ -324,7 +383,7 @@ namespace SystemRestauracja.Controllers
                     //IsVegan = danieToEdit.CzyWeganskie,
                     Price = danieToEdit.Cena
                 };
-                
+
 
                 ViewBag.Symbole = _context.Symbole.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nazwa }).ToList();
                 return View("./AddDanie", model);
@@ -353,7 +412,7 @@ namespace SystemRestauracja.Controllers
                 _context.SaveChanges();
 
                 var list = _context.SymboleDoDania.Where(x => x.DanieId == danieToEdit.Id).ToList();
-                foreach(var value in list)
+                foreach (var value in list)
                 {
                     _context.SymboleDoDania.Remove(value);
                 }
@@ -371,7 +430,7 @@ namespace SystemRestauracja.Controllers
                         Symbol = _context.Symbole.FirstOrDefault(x => x.Id == guid)
                     };
 
-                    var c = _context.SymboleDoDania.FirstOrDefault(x => x.SymbolId == symbolDoDania.SymbolId && x.DanieId==symbolDoDania.DanieId);
+                    var c = _context.SymboleDoDania.FirstOrDefault(x => x.SymbolId == symbolDoDania.SymbolId && x.DanieId == symbolDoDania.DanieId);
                     if (c == null)
                     {
                         _context.SymboleDoDania.Add(symbolDoDania);
@@ -546,7 +605,7 @@ namespace SystemRestauracja.Controllers
         public IActionResult AddSymbol(SymbolViewModel model)
         {
             var symbol = _context.Symbole.FirstOrDefault(x => x.Nazwa == model.SymbolName);
-            if(symbol==null)
+            if (symbol == null)
             {
                 Symbol s = new Symbol()
                 {
@@ -605,9 +664,9 @@ namespace SystemRestauracja.Controllers
             if (symbolToDelete != null)
             {
                 _context.Remove(_context.Symbole.Find(symbolId));
-                foreach(var symbolDoDania in _context.SymboleDoDania.ToList())
+                foreach (var symbolDoDania in _context.SymboleDoDania.ToList())
                 {
-                    if(symbolDoDania.SymbolId==symbolId)
+                    if (symbolDoDania.SymbolId == symbolId)
                     {
                         _context.Remove(symbolDoDania);
                     }

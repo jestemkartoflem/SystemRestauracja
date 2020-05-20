@@ -10,5 +10,8 @@ namespace SystemRestauracja.Models.Admin
     {
         public List<Kategoria> Kategorie { get; set; }
         public List<Kategoria> Podkategorie { get; set; }
+        public int currentPage;
+        public int pageSize;
+        public int totalPages;
     }
 }
