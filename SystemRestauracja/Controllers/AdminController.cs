@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -20,9 +23,11 @@ namespace SystemRestauracja.Controllers
     {
         private RestaurantDbContext _context;
         private IServiceProvider _serviceProvider;
+        private readonly IHostingEnvironment _hostingEnvironment;
 
-        public AdminController(RestaurantDbContext context, IServiceProvider serviceProvider)
+        public AdminController(RestaurantDbContext context, IServiceProvider serviceProvider, IHostingEnvironment hostingEnvironment)
         {
+            _hostingEnvironment = hostingEnvironment;
             _context = context;
             _serviceProvider = serviceProvider;
         }
@@ -92,7 +97,7 @@ namespace SystemRestauracja.Controllers
         }
 
         //[HttpGet]
-        public IActionResult ShowCategories(string sortOrder, string searchString, string currentFilter, int page=1, int pageSize=10)
+        public IActionResult ShowCategories(string sortOrder, string searchString, string currentFilter, int page = 1, int pageSize = 10)
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.SearchString = searchString;
@@ -100,7 +105,7 @@ namespace SystemRestauracja.Controllers
             ViewBag.DateSortParm = sortOrder == "date" ? "date_desc" : "date";
             decimal total = ((decimal)_context.Kategorie.Count() / (decimal)pageSize);
             ShowCategoriesViewModel model;
-            if(searchString!=null)
+            if (searchString != null)
             {
                 page = 1;
             }
@@ -115,7 +120,7 @@ namespace SystemRestauracja.Controllers
                 case "name_desc":
                     model = new ShowCategoriesViewModel()
                     {
-                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderByDescending(x => x.Nazwa).Skip((page-1)*pageSize).Take(pageSize).ToList(),
+                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderByDescending(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderByDescending(x => x.Nazwa).ToList()
                     };
                     break;
@@ -331,7 +336,7 @@ namespace SystemRestauracja.Controllers
         }
 
         //[HttpGet]
-        public IActionResult ShowDania(string sortOrder, string searchString, string currentFilter, int page = 1, int pageSize = 10)
+        public IActionResult ShowDania(string sortOrder, string searchString, string currentFilter, int page = 1, int pageSize = 7)
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.SearchString = searchString;
@@ -350,7 +355,7 @@ namespace SystemRestauracja.Controllers
                 searchString = currentFilter;
             }
             ViewBag.CurrentFilter = searchString;
-            switch(sortOrder)
+            switch (sortOrder)
             {
                 case "name_desc":
                     model = new ShowDaniaViewModel()
@@ -400,7 +405,7 @@ namespace SystemRestauracja.Controllers
                 case "cat":
                     model = new ShowDaniaViewModel()
                     {
-                        Dania = _context.Dania.OrderBy(x=>x.Category.Nazwa).ToList(),
+                        Dania = _context.Dania.OrderBy(x => x.Category.Nazwa).ToList(),
                         Kategorie = _context.Kategorie.ToList(),
                         SymboleDoDania = _context.SymboleDoDania.ToList(),
                         Symbole = _context.Symbole.ToList()
@@ -608,7 +613,7 @@ namespace SystemRestauracja.Controllers
             }
             ViewBag.CurrentFilter = searchString;
 
-            switch(sortOrder)
+            switch (sortOrder)
             {
                 case "name_desc":
                     model = new ShowUsersViewModel()
@@ -717,7 +722,7 @@ namespace SystemRestauracja.Controllers
         {
 
             ViewBag.CurrentSort = sortOrder;
-            ViewBag.PriceSortParm = sortOrder=="price" ? "price_desc" : "price";
+            ViewBag.PriceSortParm = sortOrder == "price" ? "price_desc" : "price";
             ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date" : "date_desc"; //domyślnie od najstarszego zamówienia
             ViewBag.StatusSortParm = sortOrder == "stat" ? "stat_desc" : "stat";
             ViewBag.TableSortParm = sortOrder == "table" ? "table_desc" : "table";
@@ -848,20 +853,60 @@ namespace SystemRestauracja.Controllers
         [HttpPost]
         public IActionResult AddSymbol(SymbolViewModel model)
         {
-            var symbol = _context.Symbole.FirstOrDefault(x => x.Nazwa == model.SymbolName);
-            if (symbol == null)
+            if (ModelState.IsValid)
             {
-                Symbol s = new Symbol()
+                //var files = HttpContext.Request.Form.Files;
+                string uniqueFileName = null;
+                Symbol s = null;
+                var symbol = _context.Symbole.FirstOrDefault(x => x.Nazwa == model.SymbolName);
+                if (symbol == null)
                 {
-                    Nazwa = model.SymbolName,
-                    FontId = model.SymbolFontId,
-                    Color = model.SymbolColor
-                };
-                _context.Symbole.Add(s);
+                    s = new Symbol()
+                    {
+                        Nazwa = model.SymbolName,
+                        //FontId = model.SymbolFontId,
+                        //Color = model.SymbolColor
+                    };
+                    _context.Symbole.Add(s);
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    s = symbol;
+                }
+                if (model.SymbolImage != null && model.SymbolImage.IsImage())
+                {
+                    try
+                    {
+                        string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                        uniqueFileName = s.Id.ToString() + "_" + model.SymbolImage.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        //using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        //{
+                        //    model.SymbolImage.CopyTo(fileStream);
+                        //}
+                        var filestream = new FileStream(filePath, FileMode.Create);
+
+                        model.SymbolImage.CopyTo(filestream);
+                        filestream.Close();
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
+                }
+                s.ImagePath = uniqueFileName;
+                _context.Symbole.Update(s);
                 _context.SaveChanges();
+            }
+            else
+            {
+                return View();
             }
             return RedirectToAction("Index");
         }
+
+
 
         [HttpGet]
         [Route("Admin/EditSymbol/{symbolId}")]
@@ -872,8 +917,8 @@ namespace SystemRestauracja.Controllers
             {
                 SymbolViewModel model = new SymbolViewModel()
                 {
-                    SymbolColor = symbolToEdit.Color,
-                    SymbolFontId = symbolToEdit.FontId,
+                    //SymbolColor = symbolToEdit.Color,
+                    //SymbolFontId = symbolToEdit.FontId,
                     SymbolName = symbolToEdit.Nazwa
                 };
                 return View("./AddSymbol", model);
@@ -885,18 +930,64 @@ namespace SystemRestauracja.Controllers
         [Route("/Admin/EditSymbol/{symbolId}")]
         public IActionResult EditSymbol(SymbolViewModel model, Guid symbolId)
         {
-            var symbol = _context.Symbole.FirstOrDefault(x => x.Id == symbolId);
-            if (symbol != null)
+            if (ModelState.IsValid)
             {
-                symbol.Nazwa = model.SymbolName;
-                symbol.Color = model.SymbolColor;
-                symbol.FontId = model.SymbolFontId;
+                var symbol = _context.Symbole.FirstOrDefault(x => x.Id == symbolId);
+                if (symbol != null)
+                {
+                    symbol.Nazwa = model.SymbolName;
+                    //symbol.Color = model.SymbolColor;
+                    //symbol.FontId = model.SymbolFontId;
+                    _context.Symbole.Update(symbol);
+                    _context.SaveChanges();
+                    return RedirectToAction("ShowSymbols");
+                }
+
+                //var files = HttpContext.Request.Form.Files;
+                string uniqueFileName = null;
+                //if (symbol == null)
+                //{
+                //    s = new Symbol()
+                //    {
+                //        Nazwa = model.SymbolName,
+                //        //FontId = model.SymbolFontId,
+                //        //Color = model.SymbolColor
+                //    };
+                //    _context.Symbole.Add(s);
+                //    _context.SaveChanges();
+                //}
+                //else
+                //{
+                if (model.SymbolImage != null && model.SymbolImage.IsImage())
+                {
+                    try
+                    {
+                        string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                        uniqueFileName = symbol.Id.ToString() + "_" + model.SymbolImage.FileName;
+                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                        //using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        //{
+                        //    model.SymbolImage.CopyTo(fileStream);
+                        //}
+                        var filestream = new FileStream(filePath, FileMode.Create);
+
+                        model.SymbolImage.CopyTo(filestream);
+                        filestream.Close();
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
+                }
+                symbol.ImagePath = uniqueFileName;
                 _context.Symbole.Update(symbol);
                 _context.SaveChanges();
-                return RedirectToAction("ShowSymbols");
             }
-            //cos poszlo nie tak, odswiez strone
-            return View("./AddSymbol", model);
+            else
+            {
+                return View("./AddSymbol", model);
+            }
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -915,6 +1006,13 @@ namespace SystemRestauracja.Controllers
                         _context.Remove(symbolDoDania);
                     }
                 }
+                string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                string filePath = Path.Combine(uploadsFolder, symbolToDelete.ImagePath);
+                FileInfo file = new FileInfo(filePath);
+                if (file.Exists)
+                {
+                    file.Delete();
+                }
                 _context.SaveChanges();
             }
 
@@ -930,6 +1028,5 @@ namespace SystemRestauracja.Controllers
             };
             return View(model);
         }
-
     }
 }

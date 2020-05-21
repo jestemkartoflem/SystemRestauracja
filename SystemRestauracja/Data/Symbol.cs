@@ -8,7 +8,8 @@ namespace SystemRestauracja.Data
     public class Symbol : DbObject
     {
         public string Nazwa { get; set; }
-        public string FontId { get; set; }
-        public string Color { get; set; }
+        //public string FontId { get; set; }
+        //public string Color { get; set; }
+        public string ImagePath { get; set; }
     }
 }

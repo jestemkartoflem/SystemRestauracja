@@ -79,8 +79,8 @@
                                 <a href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2" data-toggle="modal" data-target="#exampleModal">
                                     <div class="d-flex w-100 justify-content-between">
                                         @*<form class="">
-                                            <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                        </form>*@
+                                                <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                            </form>*@
                                         @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
                                         <h5 class="mb-1">@danie.Nazwa</h5>
                                         @foreach (var ssd in Model.SymboleDoDania)
@@ -91,22 +91,31 @@
                                                 {
                                                     if (symbol.Id == ssd.SymbolId)
                                                     {
-                                                        <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                        <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                     }
                                                 }
                                             }
                                         }
                                         @*@if (danie.CzyWeganskie)
-                                        {
-                                            <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                        }
-                                        @if (danie.CzyOstre)
-                                        {
-                                            <i class="fas fa-fire" style="color:red"></i>
-                                        }*@
+                                            {
+                                                <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                            }
+                                            @if (danie.CzyOstre)
+                                            {
+                                                <i class="fas fa-fire" style="color:red"></i>
+                                            }*@
                                         @*<small>3 days ago</small>*@
                                     </div>
-                                    <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                    @if (danie.OpisDania != null)
+                                    {
+                                        <p class="mb-1">
+                                            @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="mb-1">Brak opisu dania</p>
+                                    }
                                     <p>Cena: @danie.Cena</p>
                                     <script>
                                     document.getElementById('@danie.NormalizedNazwa').onclick = function ()
@@ -135,8 +144,8 @@
                         <a href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2" data-toggle="modal" data-target="#exampleModal">
                             <div class="d-flex w-100 justify-content-between">
                                 @*<form class="">
-                                    <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                </form>*@
+                                        <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                    </form>*@
                                 <h5 class="mb-1">@danie.Nazwa</h5>
                                 @foreach (var ssd in Model.SymboleDoDania)
                                 {
@@ -146,21 +155,30 @@
                                         {
                                             if (symbol.Id == ssd.SymbolId)
                                             {
-                                                <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                             }
                                         }
                                     }
                                 }
                                 @*@if (danie.CzyWeganskie)
-                                {
-                                    <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                }
-                                @if (danie.CzyOstre)
-                                {
-                                    <i class="fas fa-fire" style="color:red"></i>
-                                }*@
+                                    {
+                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                    }
+                                    @if (danie.CzyOstre)
+                                    {
+                                        <i class="fas fa-fire" style="color:red"></i>
+                                    }*@
                             </div>
-                            <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                            @if (danie.OpisDania != null)
+                            {
+                                <p class="mb-1">
+                                    @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="mb-1">Brak opisu dania</p>
+                            }
                             <p>Cena: @danie.Cena</p>
                             <script>
                                     document.getElementById('@danie.NormalizedNazwa').onclick = function ()
@@ -253,19 +271,19 @@
                                                                         {
                                                                             if (symbol.Id == ssd.SymbolId)
                                                                             {
-                                                                                <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                                                <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                                             }
                                                                         }
                                                                     }
                                                                 }
                                                                 @*@if (danie.CzyWeganskie)
-                                                                {
-                                                                    <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                                                }
-                                                                @if (danie.CzyOstre)
-                                                                {
-                                                                    <i class="fas fa-fire" style="color:red"></i>
-                                                                }*@
+                                                                    {
+                                                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                                    }
+                                                                    @if (danie.CzyOstre)
+                                                                    {
+                                                                        <i class="fas fa-fire" style="color:red"></i>
+                                                                    }*@
                                                             </div>
                                                             <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
                                                             <small>Cena: @danie.Cena</small>
@@ -320,19 +338,19 @@
                                                                         {
                                                                             if (symbol.Id == ssd.SymbolId)
                                                                             {
-                                                                                <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                                                <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                                             }
                                                                         }
                                                                     }
                                                                 }
                                                                 @*@if (danie.CzyWeganskie)
-                                                                {
-                                                                    <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                                                }
-                                                                @if (danie.CzyOstre)
-                                                                {
-                                                                    <i class="fas fa-fire" style="color:red"></i>
-                                                                }*@
+                                                                    {
+                                                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                                    }
+                                                                    @if (danie.CzyOstre)
+                                                                    {
+                                                                        <i class="fas fa-fire" style="color:red"></i>
+                                                                    }*@
                                                             </div>
                                                             <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
                                                             <p>Cena: @danie.Cena</p>
@@ -424,19 +442,19 @@
                                                                     {
                                                                         if (symbol.Id == ssd.SymbolId)
                                                                         {
-                                                                            <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                                            <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                                         }
                                                                     }
                                                                 }
                                                             }
                                                             @*@if (danie.CzyWeganskie)
-                                                            {
-                                                                <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                                            }
-                                                            @if (danie.CzyOstre)
-                                                            {
-                                                                <i class="fas fa-fire" style="color:red"></i>
-                                                            }*@
+                                                                {
+                                                                    <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                                }
+                                                                @if (danie.CzyOstre)
+                                                                {
+                                                                    <i class="fas fa-fire" style="color:red"></i>
+                                                                }*@
                                                         </div>
                                                         <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
                                                         <p>Cena: @danie.Cena</p>
@@ -508,19 +526,19 @@
                                                                 {
                                                                     if (symbol.Id == ssd.SymbolId)
                                                                     {
-                                                                        <i class="@symbol.FontId" style="color:@symbol.Color"></i>
+                                                                        <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                                     }
                                                                 }
                                                             }
                                                         }
                                                         @*@if (danie.CzyWeganskie)
-                                                        {
-                                                            <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                                        }
-                                                        @if (danie.CzyOstre)
-                                                        {
-                                                            <i class="fas fa-fire" style="color:red"></i>
-                                                        }*@
+                                                            {
+                                                                <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                            }
+                                                            @if (danie.CzyOstre)
+                                                            {
+                                                                <i class="fas fa-fire" style="color:red"></i>
+                                                            }*@
                                                     </div>
                                                     <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
                                                     <p>Cena: @danie.Cena</p>

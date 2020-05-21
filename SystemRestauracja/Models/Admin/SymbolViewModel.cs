@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,8 +13,9 @@ namespace SystemRestauracja.Models.Admin
         [Required]
         public string SymbolName { get; set; }
         [Required]
-        public string SymbolFontId { get; set; }
-        [Required]
-        public string SymbolColor { get; set; }
+        //public string SymbolFontId { get; set; }
+        public IFormFile SymbolImage { get; set; }
+        //[Required]
+        //public string SymbolColor { get; set; }
     }
 }

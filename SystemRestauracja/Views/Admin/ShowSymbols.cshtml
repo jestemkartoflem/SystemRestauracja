@@ -12,7 +12,6 @@
 <div class="container">
     <div class="row">
         <label class="col">Nazwa symbolu</label>
-        <label class="col">Id symbolu</label>
         <label class="col">Wygląd symbolu</label>
         <label class="col">Kolor</label>
         <label class="col"></label>
@@ -25,9 +24,12 @@
         <div>
             <div class="row">
                 <a class="col text-primary" role="button">@symbol.Nazwa</a>
-                <label class="col text-primary">@symbol.FontId</label>
+                @*<label class="col text-primary">@symbol.FontId</label>
                 <i class="@symbol.FontId col" style="color:@symbol.Color"></i>
                 <label class="col text-primary">@symbol.Color</label>
+                    tu miejsce na wyswietlanie obrazka*@
+                <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                
                 <a class="btn btn-outline-info col" asp-action="EditSymbol" asp-controller="Admin" asp-route-symbolId="@symbol.Id">Edytuj</a>
                 <a class="btn btn-outline-danger col" asp-action="DeleteSymbol" asp-controller="Admin" asp-route-symbolId="@symbol.Id">Usuń</a>
             </div>
