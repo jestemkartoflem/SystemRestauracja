@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SystemRestauracja.Migrations
 {
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -82,8 +82,7 @@ namespace SystemRestauracja.Migrations
                     CreatedBy = table.Column<string>(nullable: true),
                     DeleteDate = table.Column<DateTime>(nullable: true),
                     Nazwa = table.Column<string>(nullable: true),
-                    FontId = table.Column<string>(nullable: true),
-                    Color = table.Column<string>(nullable: true)
+                    ImagePath = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -257,6 +256,8 @@ namespace SystemRestauracja.Migrations
                     CreatedBy = table.Column<string>(nullable: true),
                     DeleteDate = table.Column<DateTime>(nullable: true),
                     StatusZestawu = table.Column<int>(nullable: false),
+                    ZestawNr = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     NormalizedName = table.Column<string>(nullable: true),
                     CenaZestawu = table.Column<decimal>(nullable: false),
                     ZamowienieId = table.Column<Guid>(nullable: false),

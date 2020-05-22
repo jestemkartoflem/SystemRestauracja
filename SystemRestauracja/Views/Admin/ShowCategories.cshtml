@@ -28,11 +28,14 @@
     </form>
 </div>
 
-<div class="container">
+<div>
     <div class="row">
         <div class="col">@Html.ActionLink("Nazwa", "ShowCategories", new { sortOrder = ViewBag.NameSortParm })</div>
         <div class="col">
             @Html.ActionLink("Data utworzenia", "ShowCategories", new { sortOrder = ViewBag.DateSortParm })
+        </div>
+        <div class="col">
+            @*@Html.ActionLink("Nadrzędna kategoria", "ShowCategories", new { sortOrder = ViewBag.ParentCatSortParm })*@
         </div>
         <div class="col"></div>
         <div class="col"></div>
@@ -40,73 +43,32 @@
 </div>
 
 
-
-<form class="container">
-    @if (ViewBag.SearchString == null)
-    {
+<div class="" style="overflow-y:hidden; width:auto">
+    <form class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
         @foreach (var cat in Model.Kategorie)
         {
 
             <div>
-                @if (cat.HasChildren)
-                {
-                    <div class="row">
-                        <a class="form-control col text-primary">@cat.Nazwa</a>
-                        <a class="form-control col text-primary">@cat.CreateDate</a>
-                        <button class="btn btn-outline-info col" asp-action="EditCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Edytuj</button>
-                        <button class="btn btn-outline-danger col" asp-action="DeleteCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Usuń</button>
-                    </div>
-                    <div>
-                        <div>
-                            @foreach (var childrenCategory in Model.Podkategorie)
-                            {
-                                if (childrenCategory.ParentCategoryId == cat.Id)
-                                {
-                                    <div class="row">
-                                        <a class="form-control col ml-5 text-secondary">@childrenCategory.Nazwa</a>
-                                        <a class="form-control col text-primary">@childrenCategory.CreateDate</a>
-                                        <button class="btn btn-outline-info col" type="submit" asp-action="EditCategory" asp-controller="Admin" asp-route-categoryId="@childrenCategory.Id">Edytuj</button>
-                                        <button class="btn btn-outline-danger col" type="submit" asp-action="DeleteCategory" asp-controller="Admin" asp-route-categoryId="@childrenCategory.Id">Usuń</button>
-                                    </div>
-                                }
-
-                            }
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <div class="row">
-                        <a class="form-control col text-primary">@cat.Nazwa</a>
-                        <a class="form-control col text-primary">@cat.CreateDate</a>
-                        <button class="btn btn-outline-info col" asp-action="EditCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Edytuj</button>
-                        <button class="btn btn-outline-danger col" asp-action="DeleteCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Usuń</button>
-                    </div>
-                }
-            </div>
-
-        }
-    }
-    else
-    {
-        @foreach (var cat in Model.Kategorie)
-        {
-            <div class="row">
-                @if (cat.ParentCategoryId == null)
-                {
+                <div class="row">
                     <a class="form-control col text-primary">@cat.Nazwa</a>
-                }
-                else
-                {
-                    <a class="form-control col text-secondary">@cat.Nazwa</a>
-                }
-                <a class="form-control col text-primary">@cat.CreateDate</a>
-                <button class="btn btn-outline-info col" asp-action="EditCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Edytuj</button>
-                <button class="btn btn-outline-danger col" asp-action="DeleteCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Usuń</button>
+                    <a class="form-control col text-primary">@cat.CreateDate</a>
+                    @if (cat.ParentCategoryId!=null)
+                    {
+
+                        <a class="form-control col text-primary">@cat.ParentCategory.Nazwa</a>
+                    }
+                    else
+                    {
+                        <a class="form-control col text-secondary">Brak nadrzędnej kategorii</a>
+                    }
+                    <button class="btn btn-outline-info col" asp-action="EditCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Edytuj</button>
+                    <button class="btn btn-outline-danger col" asp-action="DeleteCategory" asp-controller="Admin" asp-route-categoryId="@cat.Id">Usuń</button>
+                </div>
             </div>
+
         }
-    }
-</form>
+    </form>
+</div>
 <div>
     <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
 </div>

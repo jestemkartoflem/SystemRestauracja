@@ -3,127 +3,203 @@
     ViewData["Title"] = "ShowPending";
 }
 
-<h1>ShowPending</h1>
+<h1>Oczekujące zamówienia</h1>
 
-<div class="row ml-3">
+@*<div class="row ml-3">
     <div class="col">
         Nr zamowienia
     </div>
-    <label class="col">@Html.ActionLink("Cena", "ShowPending", new { sortOrder = ViewBag.PriceSortParm })</label>
+    <label class="col">@Html.ActionLink("Sortuj ceną", "ShowPending", new { sortOrder = ViewBag.PriceSortParm })</label>
 
-    <label class="col">@Html.ActionLink("Użytkownik", "ShowPending", new { sortOrder = ViewBag.TableSortParm })</label>
+    <label class="col">@Html.ActionLink("Sortuj użytkownikami", "ShowPending", new { sortOrder = ViewBag.TableSortParm })</label>
 
 
-    <label class="col">@Html.ActionLink("Status", "ShowPending", new { sortOrder = ViewBag.StatusSortParm })</label>
+    <label class="col">@Html.ActionLink("Sortuj statusem", "ShowPending", new { sortOrder = ViewBag.StatusSortParm })</label>
 
-    <label class="col">@Html.ActionLink("Data", "ShowPending", new { sortOrder = ViewBag.DateSortParm })</label>
-</div>
-<div class="list-group ml-3">
-    @foreach (var zamowienie in Model.Zamowienia)
-    {
-        <div class="row list-group-item-primary" data-toggle="collapse" href="#@zamowienie.NormalizedName" role="button" aria-expanded="true" aria-controls="collapseExample">
-            <div class="col">
-                @zamowienie.ZamowienieNr
-            </div>
-            <div class="col">
-                @zamowienie.CenaSuma
-            </div>
-            <div class="col">
-                @foreach (var user in Model.Uzytkownicy)
-                {
-                    if (zamowienie.ZamawiajacyId == user.Id)
-                    {
+    <label class="col">@Html.ActionLink("Sortuj datą utworzenia", "ShowPending", new { sortOrder = ViewBag.DateSortParm })</label>
+</div>*@
 
-                        <div>@user.UserName</div>
+@*<div class="row container w-25">
 
-                    }
-                }
-            </div>
-            <div class="col">
-                @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
-                {
-                    <div>Dodawane</div>
-                }
-                else if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Oczekujace)
-                {
-                    <div>Oczekujące</div>
-                }
-                else if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Oplacane)
-                {
-                    <div>Opłacane</div>
-                }
-                else if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Unknown)
-                {
-                    <div>Unknown</div>
-                }
-                else if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Usuniete)
-                {
-                    <div>Usunięte</div>
-                }
-                else
-                {
-                    <div>Wydane</div>
-                }
-            </div>
-            <form class="col">
-                <button class="btn btn-sm btn-outline-dark" asp-action="CloseZamowienie" asp-controller="Admin" asp-route-zamowienieId="@zamowienie.Id">Zamknij zamówienie</button>
-            </form>
-        </div>
-        <div class="row" id="@zamowienie.NormalizedName">
-            <div>
-                <div class="row ml-5 list-group-item-dark mr-1">
+        <div class="list-group ml-3">
+            @foreach (var zamowienie in Model.Zamowienia)
+            {
+                <div class="row list-group-item-primary" data-toggle="collapse" href="#@zamowienie.NormalizedName" role="button" aria-expanded="true" aria-controls="collapseExample">
                     <div class="col">
-                        Czas
+                        @zamowienie.ZamowienieNr
                     </div>
                     <div class="col">
-                        Cena
+                        @zamowienie.CenaSuma
                     </div>
                     <div class="col">
-                        Status
+                        @foreach (var user in Model.Uzytkownicy)
+                        {
+                            if (zamowienie.ZamawiajacyId == user.Id)
+                            {
+
+                                <div>@user.UserName</div>
+
+                            }
+                        }
+                    </div>
+                    <div class="col">
+                        @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
+                        {
+                            <div>Dodawane</div>
+                        }
+                        else if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Oczekujace)
+                        {
+                            <div>Oczekujące</div>
+                        }
+                        else if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Oplacane)
+                        {
+                            <div>Opłacane</div>
+                        }
+                        else if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Unknown)
+                        {
+                            <div>Unknown</div>
+                        }
+                        else if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Usuniete)
+                        {
+                            <div>Usunięte</div>
+                        }
+                        else
+                        {
+                            <div>Wydane</div>
+                        }
+                    </div>
+                    <form class="col">
+                        <button class="btn btn-sm btn-outline-dark" asp-action="CloseZamowienie" asp-controller="Admin" asp-route-zamowienieId="@zamowienie.Id">Zamknij zamówienie</button>
+                    </form>
+                </div>
+                <div class="row" id="@zamowienie.NormalizedName">
+                    <div>
+                        <div class="row ml-5 list-group-item-dark mr-1">
+                            <div class="col">
+                                Czas
+                            </div>
+                            <div class="col">
+                                Cena
+                            </div>
+                            <div class="col">
+                                Status
+                            </div>
+                        </div>
+                        @foreach (var zestaw in Model.Zestawy)
+                        {
+                            if (zestaw.ZamowienieId == zamowienie.Id)
+                            {
+                                <div class="list-group-item-secondary ml-3">
+                                    <div class="ml-3 row">
+                                        <div class="col">
+                                            @(DateTime.Now - zestaw.CreateDate)
+                                        </div>
+                                        <div class="col">
+                                            @zestaw.CenaZestawu
+                                        </div>
+                                        <div class="col">
+                                            @if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Dodawany)
+                                            {
+                                                <div>Dodawany</div>
+                                            }
+                                            else if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Oczekujace)
+                                            {
+                                                <div>Oczekujące</div>
+                                            }
+                                            else if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Unknown)
+                                            {
+                                                <div>Unknown</div>
+                                            }
+                                            else
+                                            {
+                                                <div>Wydany</div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="row ml-5 list-group-item-success mr-2">
+                                        <div class="col">
+                                            Nazwa
+                                        </div>
+                                        <div class="col">
+                                            Cena
+                                        </div>
+                                        <div class="col">
+                                            Opis
+                                        </div>
+                                    </div>
+                                    @foreach (var ddz in Model.DaniaDoZestawow)
+                                    {
+                                        @if (ddz.ZestawId == zestaw.Id)
+                                        {
+                                            foreach (var danie in Model.Dania)
+                                            {
+
+                                                if (danie.Id == ddz.DanieId)
+                                                {
+                                                    <div class="row ml-5 list-group-item-info mr-2">
+                                                        <div class="col">
+                                                            @danie.Nazwa
+                                                        </div>
+                                                        <div class="col">
+                                                            @danie.Cena
+                                                        </div>
+                                                        <div class="col">
+                                                            @danie.OpisDania
+                                                        </div>
+                                                    </div>
+                                                    <hr />
+                                                }
+                                            }
+                                        }
+                                    }
+                                </div>
+
+                            }
+                        }
                     </div>
                 </div>
+            }
+        </div>
+    </div>*@
+<div class="" style="overflow-y:hidden; width:auto">
+    <div class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Nr Zestawu</th>
+                    <th scope="col">@Html.ActionLink("Cena zestawu", "ShowPending", new { sortOrder = ViewBag.PriceSortParm })</th>
+                    <th scope="col">Status zestawu</th>
+                    <th scope="col">@Html.ActionLink("Użytkownik", "ShowPending", new { sortOrder = ViewBag.TableSortParm })</th>
+                    <th scope="col">Potrawy</th>
+                    <th scope="col">@Html.ActionLink("Data utworzenia", "ShowPending", new { sortOrder = ViewBag.DateSortParm })</th>
+                    <th scope="col">Zamknij</th>
+                </tr>
+            </thead>
+            <tbody>
                 @foreach (var zestaw in Model.Zestawy)
                 {
-                    if (zestaw.ZamowienieId == zamowienie.Id)
-                    {
-                        <div class="list-group-item-secondary ml-3">
-                            <div class="ml-3 row">
-                                <div class="col">
-                                    @(DateTime.Now - zestaw.CreateDate)
-                                </div>
-                                <div class="col">
-                                    @zestaw.CenaZestawu
-                                </div>
-                                <div class="col">
-                                    @if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Dodawany)
-                                    {
-                                        <div>Dodawany</div>
-                                    }
-                                    else if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Oczekujace)
-                                    {
-                                        <div>Oczekujące</div>
-                                    }
-                                    else if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Unknown)
-                                    {
-                                        <div>Unknown</div>
-                                    }
-                                    else
-                                    {
-                                        <div>Wydany</div>
-                                    }
-                                </div>
-                            </div>
-                            <div class="row ml-5 list-group-item-success mr-2">
-                                <div class="col">
-                                    Nazwa
-                                </div>
-                                <div class="col">
-                                    Cena
-                                </div>
-                                <div class="col">
-                                    Opis
-                                </div>
-                            </div>
+                    <tr>
+                        <th scope="col">
+                            @zestaw.ZestawNr
+                        </th>
+                        <td>
+                            @zestaw.CenaZestawu
+                        </td>
+                        <td>
+                            @zestaw.StatusZestawu
+                        </td>
+                        <td>
+                            @foreach (var user in Model.Uzytkownicy)
+                            {
+                                if (zestaw.ZamawiajacyId == user.Id)
+                                {
+
+                                    <div>@user.UserName</div>
+
+                                }
+                            }
+                        </td>
+                        <td>
                             @foreach (var ddz in Model.DaniaDoZestawow)
                             {
                                 @if (ddz.ZestawId == zestaw.Id)
@@ -137,25 +213,25 @@
                                                 <div class="col">
                                                     @danie.Nazwa
                                                 </div>
-                                                <div class="col">
-                                                    @danie.Cena
-                                                </div>
-                                                <div class="col">
-                                                    @danie.OpisDania
-                                                </div>
                                             </div>
-                                            <hr />
                                         }
                                     }
                                 }
                             }
-                        </div>
-
-                    }
+                        </td>
+                        <td>
+                            @zestaw.CreateDate
+                        </td>
+                        <td>
+                            <form class="col">
+                                <button class="btn btn-sm btn-outline-dark" asp-action="CloseZestaw" asp-controller="Admin" asp-route-zestawId="@zestaw.Id">Zamknij zestaw</button>
+                            </form>
+                        </td>
+                    </tr>
                 }
-            </div>
-        </div>
-    }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div>
@@ -174,9 +250,9 @@
 </div>
 
 <script>
-    //setTimeout(function () {
-    //    window.location.reload(1);
-    //}, 10000);
+        //setTimeout(function () {
+        //    window.location.reload(1);
+        //}, 10000);
 </script>
 
 

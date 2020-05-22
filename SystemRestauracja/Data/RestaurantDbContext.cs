@@ -24,12 +24,19 @@ namespace SystemRestauracja.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<Zestaw>()
+                .Property(f => f.ZestawNr)
+                .ValueGeneratedOnAdd();
+            builder.Entity<Zestaw>()
+                .Property(f => f.ZestawNr)
+                .Metadata.AfterSaveBehavior = PropertySaveBehavior.Ignore;
             builder.Entity<Zamowienie>()
                 .Property(f => f.ZamowienieNr)
                 .ValueGeneratedOnAdd();
             builder.Entity<Zamowienie>()
                 .Property(f => f.ZamowienieNr)
                 .Metadata.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+            
 
             base.OnModelCreating(builder);
         }

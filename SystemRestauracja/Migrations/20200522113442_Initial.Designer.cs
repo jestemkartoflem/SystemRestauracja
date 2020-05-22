@@ -10,8 +10,8 @@ using SystemRestauracja.Data;
 namespace SystemRestauracja.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20200521075119_SymbolImageUpdate")]
-    partial class SymbolImageUpdate
+    [Migration("20200522113442_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -366,6 +366,10 @@ namespace SystemRestauracja.Migrations
                     b.Property<string>("ZamawiajacyId");
 
                     b.Property<Guid>("ZamowienieId");
+
+                    b.Property<int>("ZestawNr")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.HasKey("Id");
 

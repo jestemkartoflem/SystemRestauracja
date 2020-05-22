@@ -365,6 +365,10 @@ namespace SystemRestauracja.Migrations
 
                     b.Property<Guid>("ZamowienieId");
 
+                    b.Property<int>("ZestawNr")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
                     b.HasKey("Id");
 
                     b.HasIndex("ZamawiajacyId");

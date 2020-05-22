@@ -36,7 +36,8 @@
     </div>
 </div>
 @*<div style="overflow-y:scroll">*@
-    <form class="container">
+<div class="" style="overflow-y:hidden; width:auto">
+    <form class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
 
         @foreach (var danie in Model.Dania)
         {
@@ -69,19 +70,20 @@
             <hr />
         }
     </form>
+</div>
 
-    <div>
-        <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
-    </div>
+<div>
+    <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
+</div>
 
-    <div class="justify-content-center row">
-        <ul class="pagination">
-            @for (int i = 1; i <= Model.totalPages; i++)
-            {
-                <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
-                    <a class="page-link" href="@Url.Action("ShowCategories", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
-                </li>
-            }
-        </ul>
-    </div>
+<div class="justify-content-center row">
+    <ul class="pagination">
+        @for (int i = 1; i <= Model.totalPages; i++)
+        {
+            <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
+                <a class="page-link" href="@Url.Action("ShowCategories", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+            </li>
+        }
+    </ul>
+</div>
 @*</div>*@

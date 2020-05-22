@@ -103,6 +103,7 @@ namespace SystemRestauracja.Controllers
             ViewBag.SearchString = searchString;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewBag.DateSortParm = sortOrder == "date" ? "date_desc" : "date";
+            ViewBag.ParentCatSortParm = sortOrder == "parcat" ? "parcat_desc" : "parcat";
             decimal total = ((decimal)_context.Kategorie.Count() / (decimal)pageSize);
             ShowCategoriesViewModel model;
             if (searchString != null)
@@ -120,38 +121,45 @@ namespace SystemRestauracja.Controllers
                 case "name_desc":
                     model = new ShowCategoriesViewModel()
                     {
-                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderByDescending(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderByDescending(x => x.Nazwa).ToList()
+                        Kategorie = _context.Kategorie.OrderByDescending(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                     };
                     break;
                 case "date":
                     model = new ShowCategoriesViewModel()
                     {
-                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.CreateDate).ToList()
+                        Kategorie = _context.Kategorie.OrderBy(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                     };
                     break;
                 case "date_desc":
                     model = new ShowCategoriesViewModel()
                     {
-                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderByDescending(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderByDescending(x => x.CreateDate).ToList()
+                        Kategorie = _context.Kategorie.OrderByDescending(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList()
+                    };
+                    break;
+                case "parcat":
+                    model = new ShowCategoriesViewModel()
+                    {
+                        Kategorie = _context.Kategorie.OrderBy(x => x.ParentCategory.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList()
+                    };
+                    break;
+                case "parcat_desc":
+                    model = new ShowCategoriesViewModel()
+                    {
+                        Kategorie = _context.Kategorie.OrderByDescending(x => x.ParentCategory.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList()
                     };
                     break;
                 default:
                     model = new ShowCategoriesViewModel()
                     {
-                        Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList()
+                        Kategorie = _context.Kategorie.OrderBy(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList()
                     };
                     break;
             }
             if (!String.IsNullOrEmpty(searchString))
             {
-                searchString = searchString.ToLower();
-                model.Kategorie = model.Kategorie.Concat(model.Podkategorie).ToList();
-                model.Kategorie = model.Kategorie.Where(x => x.Nazwa.ToLower().Contains(searchString)).Skip((page - 1) * pageSize).Take(pageSize).ToList();
-                total = ((decimal)(model.Kategorie.Count())) / (decimal)pageSize;
+                searchString = searchString;
+                model.Kategorie = model.Kategorie.Where(x => x.Nazwa.Contains(searchString)).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                total = ((decimal)model.Kategorie.Count() / (decimal)pageSize);
             }
 
             model.currentPage = page;
@@ -168,14 +176,10 @@ namespace SystemRestauracja.Controllers
 
         [HttpGet]
         [Route("Admin/DeleteCategory/{categoryId}")]
-        public IActionResult DeleteCategory(Guid categoryId, string returnUrl = null)
+        public IActionResult DeleteCategory(Guid categoryId, string returnUrl = null, int page = 1, int pageSize = 10)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            ShowCategoriesViewModel model = new ShowCategoriesViewModel()
-            {
-                Kategorie = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(),
-                Podkategorie = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList()
-            };
+
             var daniaWithThatCategory = _context.Dania.Where(x => x.CategoryId == categoryId).ToList();
             var catToDelete = _context.Kategorie.FirstOrDefault(x => x.Id == categoryId);
             if (catToDelete != null)
@@ -183,6 +187,11 @@ namespace SystemRestauracja.Controllers
                 if (daniaWithThatCategory.Any())
                 {
                     ModelState.AddModelError("Error", "Nie można usunąć kategorii z przypisanymi daniami.");
+
+                    ShowCategoriesViewModel model = new ShowCategoriesViewModel()
+                    {
+                        Kategorie = _context.Kategorie.OrderBy(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList()
+                    };
 
                     return View("./ShowCategories", model);
                 }
@@ -723,7 +732,7 @@ namespace SystemRestauracja.Controllers
 
             ViewBag.CurrentSort = sortOrder;
             ViewBag.PriceSortParm = sortOrder == "price" ? "price_desc" : "price";
-            ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date" : "date_desc"; //domyślnie od najstarszego zamówienia
+            ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date_desc" : "date"; //domyślnie od najstarszego zamówienia
             ViewBag.StatusSortParm = sortOrder == "stat" ? "stat_desc" : "stat";
             ViewBag.TableSortParm = sortOrder == "table" ? "table_desc" : "table";
             decimal total = ((decimal)_context.Users.Count() / (decimal)pageSize);
@@ -734,9 +743,9 @@ namespace SystemRestauracja.Controllers
                 case "price":
                     model = new ShowPendingViewModel()
                     {
-                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
-                        .OrderBy(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderBy(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CenaZestawu).ToList(),
                         Dania = _context.Dania.ToList(),
                         DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
                         Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
@@ -745,9 +754,9 @@ namespace SystemRestauracja.Controllers
                 case "price_desc":
                     model = new ShowPendingViewModel()
                     {
-                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
-                        .OrderByDescending(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderByDescending(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.CenaZestawu).ToList(),
                         Dania = _context.Dania.ToList(),
                         DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
                         Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
@@ -756,9 +765,9 @@ namespace SystemRestauracja.Controllers
                 case "stat":
                     model = new ShowPendingViewModel()
                     {
-                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
-                        .OrderBy(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderBy(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.StatusZestawu).ToList(),
                         Dania = _context.Dania.ToList(),
                         DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
                         Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
@@ -767,9 +776,9 @@ namespace SystemRestauracja.Controllers
                 case "stat_desc":
                     model = new ShowPendingViewModel()
                     {
-                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
-                        .OrderByDescending(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderByDescending(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.StatusZestawu).ToList(),
                         Dania = _context.Dania.ToList(),
                         DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
                         Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
@@ -778,9 +787,9 @@ namespace SystemRestauracja.Controllers
                 case "date_desc":
                     model = new ShowPendingViewModel()
                     {
-                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
-                        .OrderBy(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderBy(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.CreateDate).ToList(),
                         Dania = _context.Dania.ToList(),
                         DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
                         Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
@@ -789,9 +798,9 @@ namespace SystemRestauracja.Controllers
                 case "table_desc":
                     model = new ShowPendingViewModel()
                     {
-                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
-                        .OrderByDescending(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderByDescending(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.Zamawiajacy.UserName).ToList(),
                         Dania = _context.Dania.ToList(),
                         DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
                         Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
@@ -800,9 +809,9 @@ namespace SystemRestauracja.Controllers
                 case "table":
                     model = new ShowPendingViewModel()
                     {
-                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
-                        .OrderBy(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderBy(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.Zamawiajacy.UserName).ToList(),
                         Dania = _context.Dania.ToList(),
                         DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
                         Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
@@ -811,9 +820,9 @@ namespace SystemRestauracja.Controllers
                 default:
                     model = new ShowPendingViewModel()
                     {
-                        Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
-                        .OrderByDescending(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
-                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CreateDate).ToList(),
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderByDescending(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.CreateDate).ToList(),
                         Dania = _context.Dania.ToList(),
                         DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
                         Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
@@ -828,17 +837,54 @@ namespace SystemRestauracja.Controllers
             return View(model);
         }
 
+        //[HttpGet]
+        //public IActionResult ShowOpenOrders()
+        //{
+        //    return View();
+        //}
+
+        //[HttpGet]
+        //[Route("Admin/CloseZamowienie/{zamowienieId}")]
+        //public IActionResult CloseZamowienie(Guid zamowienieId)
+        //{
+        //    var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zamowienieId);
+        //    if (zamowienie != null)
+        //    {
+        //        zamowienie.StatusZamowienie = StatusZamowienie.Usuniete;
+        //        zamowienie.DeleteDate = DateTime.Now;
+        //        _context.Zamowienia.Update(zamowienie);
+        //        _context.SaveChanges();
+        //    }
+        //    return RedirectToAction("ShowPending");
+        //}
+
         [HttpGet]
-        [Route("Admin/CloseZamowienie/{zamowienieId}")]
-        public IActionResult CloseZamowienie(Guid zamowienieId)
+        [Route("Admin/CloseZestaw/{zestawId}")]
+        public IActionResult CloseZestaw(Guid zestawId)
         {
-            var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zamowienieId);
-            if (zamowienie != null)
+            var zestaw = _context.Zestawy.FirstOrDefault(x => x.Id == zestawId);
+            if (zestaw != null)
             {
-                zamowienie.StatusZamowienie = StatusZamowienie.Usuniete;
-                zamowienie.DeleteDate = DateTime.Now;
-                _context.Zamowienia.Update(zamowienie);
+                zestaw.StatusZestawu = StatusZestaw.Wydane;
+                zestaw.DeleteDate = DateTime.Now;
+                _context.Zestawy.Update(zestaw);
                 _context.SaveChanges();
+                var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zestaw.ZamowienieId);
+                bool wszystkieZestawyWydane = true;
+                foreach(var z in _context.Zestawy)
+                {
+                    if(z.ZamowienieId==zamowienie.Id && z.StatusZestawu!=StatusZestaw.Wydane)
+                    {
+                        wszystkieZestawyWydane = false;
+                    }
+                }
+                if(wszystkieZestawyWydane)
+                {
+                    zamowienie.StatusZamowienie = StatusZamowienie.Usuniete;
+                    zamowienie.DeleteDate = DateTime.Now;
+                    _context.Zamowienia.Update(zamowienie);
+                    _context.SaveChanges();
+                }
             }
             return RedirectToAction("ShowPending");
         }

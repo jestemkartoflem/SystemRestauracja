@@ -29,27 +29,29 @@
         <label class="col">Usuwanie</label>
     </div>
 </div>
-<form class="container">
-    @foreach (var user in Model.Users)
-    {
-        <div>
-            <div class="row">
-                <a class="col text-primary" role="button">@user.UserName</a>
-                <label class="col text-primary">@user.StatusStolika</label>
-                <a class="btn btn-outline-info col" asp-action="EditUserAsync" asp-controller="Admin" asp-route-userId="@user.Id">Edytuj</a>
-                @if (user.IsActive == "Not editable")
-                {
-                    <a class="btn btn-outline-danger col" disabled>Usuń</a>
-                }
-                else
-                {
-                    <input class="btn btn-outline-danger col" type="submit" asp-action="DeleteUser" asp-controller="Admin" asp-route-userId="@user.Id" value="Usuń" />
-                }
+<div class="" style="overflow-y:hidden; width:auto">
+    <form class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+        @foreach (var user in Model.Users)
+        {
+            <div>
+                <div class="row">
+                    <a class="col text-primary" role="button">@user.UserName</a>
+                    <label class="col text-primary">@user.StatusStolika</label>
+                    <a class="btn btn-outline-info col" asp-action="EditUserAsync" asp-controller="Admin" asp-route-userId="@user.Id">Edytuj</a>
+                    @if (user.IsActive == "Not editable")
+                    {
+                        <a class="btn btn-outline-danger col" disabled>Usuń</a>
+                    }
+                    else
+                    {
+                        <input class="btn btn-outline-danger col" type="submit" asp-action="DeleteUser" asp-controller="Admin" asp-route-userId="@user.Id" value="Usuń" />
+                    }
+                </div>
             </div>
-        </div>
-        <hr />
-    }
-</form>
+            <hr />
+        }
+    </form>
+</div>
 
 <div>
     <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>

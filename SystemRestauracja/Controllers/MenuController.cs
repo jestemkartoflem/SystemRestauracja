@@ -134,7 +134,7 @@ namespace SystemRestauracja.Controllers
             return RedirectToAction("OrderMenu", new { selectedZamowienieId = zamowienieId });
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("/Menu/AddZestaw/{zamowienieId}")]
         public IActionResult AddZestaw(Guid zamowienieId)
         {

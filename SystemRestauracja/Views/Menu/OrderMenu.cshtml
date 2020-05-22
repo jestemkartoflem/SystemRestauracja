@@ -55,6 +55,7 @@
         <!--menu kategorie - for each kategoria in daza banych nazwa kategorii; for each kategoria if kategoria.parentkategoriaid == this.kategoria id nazwa podkategorii-->
         <hr />
 
+
         @foreach (var kategoria in Model.CategoryList)
         {
 
@@ -71,41 +72,99 @@
                             <h5 class="ml-2">@podkat.Nazwa</h5>
                         </div>
                         <!--Dania przynależące do danej kategorii-->
-
-                        @foreach (var danie in Model.Dania)
-                        {
-                            if (danie.CategoryId == podkat.Id)
+                        <div class="card">
+                            @foreach (var danie in Model.Dania)
                             {
-                                <a href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2" data-toggle="modal" data-target="#exampleModal">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        @*<form class="">
-                                                <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                            </form>*@
-                                        @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
-                                        <h5 class="mb-1">@danie.Nazwa</h5>
-                                        @foreach (var ssd in Model.SymboleDoDania)
-                                        {
-                                            if (ssd.DanieId == danie.Id)
+                                if (danie.CategoryId == podkat.Id)
+                                {
+                                    <div class="card-header row" id="@(danie.NormalizedNazwa+"heading")">
+                                        <button class="btn btn-link col w-100" data-toggle="collapse" data-target="#@(danie.NormalizedNazwa+"collapse")" aria-expanded="true" aria-controls="@(danie.NormalizedNazwa+"collapse")">
+
+                                            @*<form class="">
+                                                    <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                                </form>*@
+                                            @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
+                                            <h5 class="mb-1">@danie.Nazwa</h5>
+                                            @foreach (var ssd in Model.SymboleDoDania)
                                             {
-                                                @foreach (var symbol in Model.Symbole)
+                                                if (ssd.DanieId == danie.Id)
                                                 {
-                                                    if (symbol.Id == ssd.SymbolId)
+                                                    @foreach (var symbol in Model.Symbole)
                                                     {
-                                                        <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                                                        if (symbol.Id == ssd.SymbolId)
+                                                        {
+                                                            <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
-                                        @*@if (danie.CzyWeganskie)
+                                            @if (danie.OpisDania != null)
                                             {
-                                                <i class="fas fa-leaf" style="color:forestgreen"></i>
+                                                <p class="mb-1">
+                                                    @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
+                                                </p>
                                             }
-                                            @if (danie.CzyOstre)
+                                            else
                                             {
-                                                <i class="fas fa-fire" style="color:red"></i>
-                                            }*@
-                                        @*<small>3 days ago</small>*@
+                                                <p class="mb-1">Brak opisu dania</p>
+                                            }
+                                            <p>Cena: @danie.Cena</p>
+                                            <script>
+                                                document.getElementById('@(danie.NormalizedNazwa+"heading")').onclick = function ()
+                                                {
+                                                    document.getElementById('@(danie.NormalizedNazwa+"collapse")').collapse('toggle');
+                                                }
+                                            </script>
+                                        </button>
+                                        <form class="col">
+                                            <button id="zamowienieBtn" type="submit" formaction="/Menu/AddDanieToZestaw/@danie.Id/@Model.SelectedZestawId" class="btn btn-outline-success h-100 w-auto float-right">Dodaj</button>
+                                        </form>
                                     </div>
+
+                                    <div id="@(danie.NormalizedNazwa+"collapse")" class="collapse" aria-labelledby="@(danie.NormalizedNazwa+"heading")" data-parent="#myTable">
+                                        <div class="card-body">
+                                            @danie.OpisDania
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                }
+            }
+            else
+            {
+                <!--Dania nalezace do nadrzednej kategorii bez podkategorii-->
+                <div id="@kategoria.NormalizedName">
+                    <h4>@kategoria.Nazwa</h4>
+                </div>
+                <div class="card">
+                    @foreach (var danie in Model.Dania)
+                    {
+                        if (danie.CategoryId == kategoria.Id)
+                        {
+
+                            <div class="card-header row" id="@(danie.NormalizedNazwa+"heading")">
+                                <button class="btn btn-link col w-100" data-toggle="collapse" data-target="#@(danie.NormalizedNazwa+"collapse")" aria-expanded="true" aria-controls="@(danie.NormalizedNazwa+"collapse")">
+
+                                    @*<form class="">
+                                            <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                        </form>*@
+                                    @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
+                                    <h5 class="mb-1">@danie.Nazwa</h5>
+                                    @foreach (var ssd in Model.SymboleDoDania)
+                                    {
+                                        if (ssd.DanieId == danie.Id)
+                                        {
+                                            @foreach (var symbol in Model.Symbole)
+                                            {
+                                                if (symbol.Id == ssd.SymbolId)
+                                                {
+                                                    <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                                                }
+                                            }
+                                        }
+                                    }
                                     @if (danie.OpisDania != null)
                                     {
                                         <p class="mb-1">
@@ -118,79 +177,25 @@
                                     }
                                     <p>Cena: @danie.Cena</p>
                                     <script>
-                                    document.getElementById('@danie.NormalizedNazwa').onclick = function ()
-                                    {
-                                        document.getElementById('modalbody').innerHTML = '@danie.OpisDania';
-                                        document.getElementById('exampleModalLabel').innerHTML = '@danie.Nazwa';
-                                        document.getElementById('footer').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button><button id="zamowienieBtn" type="submit" formaction="/Menu/AddDanieToZestaw/@danie.Id/@Model.SelectedZestawId" class="btn btn-success">Dodaj do wybranego zestawu</button>';
-                                    }
+                                                document.getElementById('@(danie.NormalizedNazwa+"heading")').onclick = function ()
+                                                {
+                                                    document.getElementById('@(danie.NormalizedNazwa+"collapse")').collapse('toggle');
+                                                }
                                     </script>
-                                </a>
-                            }
+                                </button>
+                                <form class="col">
+                                    <button id="zamowienieBtn" type="submit" formaction="/Menu/AddDanieToZestaw/@danie.Id/@Model.SelectedZestawId" class="btn btn-outline-success h-100 w-auto float-right">Dodaj</button>
+                                </form>
+                            </div>
+
+                            <div id="@(danie.NormalizedNazwa+"collapse")" class="collapse" aria-labelledby="@(danie.NormalizedNazwa+"heading")" data-parent="#myTable">
+                                <div class="card-body">
+                                    @danie.OpisDania
+                                </div>
+                            </div>
                         }
                     }
-                }
-            }
-            else
-            {
-                <!--Dania nalezace do nadrzednej kategorii bez podkategorii-->
-                <div id="@kategoria.NormalizedName">
-                    <h4>@kategoria.Nazwa</h4>
                 </div>
-                @foreach (var danie in Model.Dania)
-                {
-                    if (danie.CategoryId == kategoria.Id)
-                    {
-                        <a href="#" id="@danie.NormalizedNazwa" class="list-group-item list-group-item-success flex-column align-items-start mb-2" data-toggle="modal" data-target="#exampleModal">
-                            <div class="d-flex w-100 justify-content-between">
-                                @*<form class="">
-                                        <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                    </form>*@
-                                <h5 class="mb-1">@danie.Nazwa</h5>
-                                @foreach (var ssd in Model.SymboleDoDania)
-                                {
-                                    if (ssd.DanieId == danie.Id)
-                                    {
-                                        @foreach (var symbol in Model.Symbole)
-                                        {
-                                            if (symbol.Id == ssd.SymbolId)
-                                            {
-                                                <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
-                                            }
-                                        }
-                                    }
-                                }
-                                @*@if (danie.CzyWeganskie)
-                                    {
-                                        <i class="fas fa-leaf" style="color:forestgreen"></i>
-                                    }
-                                    @if (danie.CzyOstre)
-                                    {
-                                        <i class="fas fa-fire" style="color:red"></i>
-                                    }*@
-                            </div>
-                            @if (danie.OpisDania != null)
-                            {
-                                <p class="mb-1">
-                                    @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
-                                </p>
-                            }
-                            else
-                            {
-                                <p class="mb-1">Brak opisu dania</p>
-                            }
-                            <p>Cena: @danie.Cena</p>
-                            <script>
-                                    document.getElementById('@danie.NormalizedNazwa').onclick = function ()
-                                    {
-                                        document.getElementById('modalbody').innerHTML = '@danie.OpisDania';
-                                        document.getElementById('exampleModalLabel').innerHTML = '@danie.Nazwa';
-                                        document.getElementById('footer').innerHTML = '<button type="button" class="btn btn-secondary" data-dismiss="modal">Zamknij</button><button id="zamowienieBtn" type="submit" formaction="/Menu/AddDanieToZestaw/@danie.Id/@Model.SelectedZestawId" class="btn btn-success">Dodaj do wybranego zestawu</button>';
-                                    }
-                            </script>
-                        </a>
-                    }
-                }
             }
             <hr />
         }
@@ -213,7 +218,7 @@
                                 @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
                                 {
                                     <form class="">
-                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id" />
+                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="Usuń" asp-action="RemoveZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id" />
                                     </form>
                                 }
                                 <h5 class="mb-1">
@@ -236,7 +241,7 @@
                                                 @if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Dodawany)
                                                 {
                                                     <form class="">
-                                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
+                                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="Usuń" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
                                                     </form>
                                                 }
                                                 <h5 class="mb-1">Zestaw</h5>
@@ -258,7 +263,7 @@
                                                                     @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
                                                                     {
                                                                         <form>
-                                                                            <input type="submit" class="btn btn-outline-danger btn-sm" formmethod="post" value="X" asp-action="RemoveDanieFromZestaw" asp-controller="Menu" asp-route-ddzId="@ddz.Id" />
+                                                                            <input type="submit" class="btn btn-outline-danger btn-sm" formmethod="post" value="Usuń" asp-action="RemoveDanieFromZestaw" asp-controller="Menu" asp-route-ddzId="@ddz.Id" />
                                                                         </form>
                                                                     }
                                                                     <h5 class="mb-1">@danie.Nazwa</h5>
@@ -285,7 +290,16 @@
                                                                         <i class="fas fa-fire" style="color:red"></i>
                                                                     }*@
                                                             </div>
-                                                            <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                                            @if (danie.OpisDania != null)
+                                                            {
+                                                                <p class="mb-1">
+                                                                    @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
+                                                                </p>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="mb-1">Brak opisu dania</p>
+                                                            }
                                                             <small>Cena: @danie.Cena</small>
                                                         </div>
                                                     }
@@ -303,7 +317,7 @@
                                                 @if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Dodawany)
                                                 {
                                                     <form>
-                                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
+                                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="Usuń" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
 
                                                         <input type="submit" class="btn btn-sm btn-outline-success" value="+" asp-action="SelectZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
                                                     </form>
@@ -325,7 +339,7 @@
                                                                     @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
                                                                     {
                                                                         <form>
-                                                                            <input type="submit" class="btn btn-outline-danger btn-sm" formmethod="post" value="X" asp-action="RemoveDanieFromZestaw" asp-controller="Menu" asp-route-ddzId="@ddz.Id" />
+                                                                            <input type="submit" class="btn btn-outline-danger btn-sm" formmethod="post" value="Usuń" asp-action="RemoveDanieFromZestaw" asp-controller="Menu" asp-route-ddzId="@ddz.Id" />
                                                                         </form>
                                                                     }
                                                                     <h5 class="mb-1">@danie.Nazwa</h5>
@@ -352,7 +366,16 @@
                                                                         <i class="fas fa-fire" style="color:red"></i>
                                                                     }*@
                                                             </div>
-                                                            <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                                            @if (danie.OpisDania != null)
+                                                            {
+                                                                <p class="mb-1">
+                                                                    @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
+                                                                </p>
+                                                            }
+                                                            else
+                                                            {
+                                                                <p class="mb-1">Brak opisu dania</p>
+                                                            }
                                                             <p>Cena: @danie.Cena</p>
                                                         </div>
 
@@ -368,7 +391,7 @@
                         @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
                         {
                             <form class="col">
-                                <button class="btn btn-outline-info col" asp-action="AddZestaw" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Dodaj Zestaw</button>
+                                <button class="btn btn-outline-info col" formmethod="post" asp-action="AddZestaw" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Dodaj Zestaw</button>
                             </form>
                             <form class="col" method="post">
 
@@ -386,7 +409,7 @@
                                 @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
                                 {
                                     <form class="">
-                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id" />
+                                        <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="Usuń" asp-action="RemoveZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id" />
                                     </form>
                                 }
                                 <h5 class="mb-1">
@@ -407,7 +430,7 @@
                                             @if (zestaw.StatusZestawu == SystemRestauracja.Data.StatusZestaw.Dodawany)
                                             {
                                                 <form>
-                                                    <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="X" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
+                                                    <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="Usuń" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
 
                                                     <input type="submit" class="btn btn-sm btn-outline-success" value="+" asp-action="SelectZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
                                                 </form>
@@ -429,7 +452,7 @@
                                                                 @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
                                                                 {
                                                                     <form>
-                                                                        <input type="submit" class="btn btn-outline-danger btn-sm" formmethod="post" value="X" asp-action="RemoveDanieFromZestaw" asp-controller="Menu" asp-route-ddzId="@ddz.Id" />
+                                                                        <input type="submit" class="btn btn-outline-danger btn-sm" formmethod="post" value="Usuń" asp-action="RemoveDanieFromZestaw" asp-controller="Menu" asp-route-ddzId="@ddz.Id" />
                                                                     </form>
                                                                 }
                                                                 <h5 class="mb-1">@danie.Nazwa</h5>
@@ -456,7 +479,16 @@
                                                                     <i class="fas fa-fire" style="color:red"></i>
                                                                 }*@
                                                         </div>
-                                                        <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                                        @if (danie.OpisDania != null)
+                                                        {
+                                                            <p class="mb-1">
+                                                                @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
+                                                            </p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="mb-1">Brak opisu dania</p>
+                                                        }
                                                         <p>Cena: @danie.Cena</p>
 
                                                     </div>
@@ -472,7 +504,7 @@
                         @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
                         {
                             <form class="col">
-                                <button class="btn btn-outline-info col" asp-action="AddZestaw" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Dodaj Zestaw</button>
+                                <button class="btn btn-outline-info col" formmethod="post" asp-action="AddZestaw" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Dodaj Zestaw</button>
                             </form>
                             <form class="col" method="post">
 
@@ -540,7 +572,16 @@
                                                                 <i class="fas fa-fire" style="color:red"></i>
                                                             }*@
                                                     </div>
-                                                    <p class="mb-1">@danie.OpisDania.Substring(0, (30 > danie.OpisDania.Length ? danie.OpisDania.Length : 30))...</p>
+                                                    @if (danie.OpisDania != null)
+                                                    {
+                                                        <p class="mb-1">
+                                                            @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
+                                                        </p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p class="mb-1">Brak opisu dania</p>
+                                                    }
                                                     <p>Cena: @danie.Cena</p>
                                                 </div>
 

@@ -8,7 +8,7 @@ namespace SystemRestauracja.Models.Admin
 {
     public class ShowPendingViewModel
     {
-        public List<Zamowienie> Zamowienia { get; set; }
+        //public List<Zamowienie> Zamowienia { get; set; }
         public List<Zestaw> Zestawy { get; set; }
         public List<DanieDoZestawu> DaniaDoZestawow { get; set; }
         public List<Danie> Dania { get; set; }
