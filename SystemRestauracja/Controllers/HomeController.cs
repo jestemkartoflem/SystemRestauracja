@@ -24,6 +24,10 @@ namespace SystemRestauracja.Controllers
 
         public IActionResult Index()
         {
+            //if(User.Identity.IsAuthenticated)
+            //{
+            //    return Redirect("Account/Logout");
+            //}
             return View();
         }
 

@@ -82,8 +82,8 @@ namespace SystemRestauracja.Controllers
             return View();
         }
 
-        [HttpGet]
-        [ValidateAntiForgeryToken]
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
