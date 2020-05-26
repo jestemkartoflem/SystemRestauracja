@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 public static class FormFileExtensions
 {
-    public const int ImageMinimumBytes = 512;
+    public const int ImageMinimumBytes = 64;
 
     public static bool IsImage(this IFormFile postedFile)
     {
@@ -48,19 +48,19 @@ public static class FormFileExtensions
             //------------------------------------------
             //check whether the image size exceeding the limit or not
             //------------------------------------------ 
-            if (postedFile.Length < ImageMinimumBytes)
-            {
-                return false;
-            }
+            //if (postedFile.Length < ImageMinimumBytes)
+            //{
+            //    return false;
+            //}
 
-            byte[] buffer = new byte[ImageMinimumBytes];
-            postedFile.OpenReadStream().Read(buffer, 0, ImageMinimumBytes);
-            string content = System.Text.Encoding.UTF8.GetString(buffer);
-            if (Regex.IsMatch(content, @"<script|<html|<head|<title|<body|<pre|<table|<a\s+href|<img|<plaintext|<cross\-domain\-policy",
-                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Multiline))
-            {
-                return false;
-            }
+            //byte[] buffer = new byte[ImageMinimumBytes];
+            //postedFile.OpenReadStream().Read(buffer, 0, ImageMinimumBytes);
+            //string content = System.Text.Encoding.UTF8.GetString(buffer);
+            //if (Regex.IsMatch(content, @"<script|<html|<head|<title|<body|<pre|<table|<a\s+href|<img|<plaintext|<cross\-domain\-policy",
+            //    RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Multiline))
+            //{
+            //    return false;
+            //}
         }
         catch (Exception)
         {

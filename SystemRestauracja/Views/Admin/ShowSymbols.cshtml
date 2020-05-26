@@ -9,11 +9,10 @@
 
 
 
-<div class="container">
+<div class="container-fluid list-group col">
     <div class="row">
         <label class="col">Nazwa symbolu</label>
         <label class="col">Wygląd symbolu</label>
-        <label class="col">Kolor</label>
         <label class="col"></label>
         <label class="col"></label>
     </div>
@@ -29,8 +28,9 @@
                         <i class="@symbol.FontId col" style="color:@symbol.Color"></i>
                         <label class="col text-primary">@symbol.Color</label>
                             tu miejsce na wyswietlanie obrazka*@
-                    <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
-
+                    <div class="text-center col">
+                        <img src="~/images/@symbol.ImagePath" class="rounded-circle float-left" height="32" width="32" asp-append-version="true" />
+                    </div>
                     <a class="btn btn-outline-info col" asp-action="EditSymbol" asp-controller="Admin" asp-route-symbolId="@symbol.Id">Edytuj</a>
                     <a class="btn btn-outline-danger col" asp-action="DeleteSymbol" asp-controller="Admin" asp-route-symbolId="@symbol.Id">Usuń</a>
                 </div>

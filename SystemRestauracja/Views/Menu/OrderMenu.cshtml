@@ -61,22 +61,23 @@
 
             @if (kategoria.HasChildren)
             {
-                <div>
+                <label>
                     <h4>@kategoria.Nazwa</h4>
-                </div>
+                </label>
                 @foreach (var podkat in Model.ChildrenCategories)
                 {
                     if (podkat.ParentCategoryId == kategoria.Id)
                     {
-                        <div id="@podkat.NormalizedName">
+                        <label id="@podkat.NormalizedName">
                             <h5 class="ml-2">@podkat.Nazwa</h5>
-                        </div>
+                        </label>
                         <!--Dania przynależące do danej kategorii-->
                         <div class="card">
                             @foreach (var danie in Model.Dania)
                             {
                                 if (danie.CategoryId == podkat.Id)
                                 {
+                                    
                                     <div class="card-header row" id="@(danie.NormalizedNazwa+"heading")">
                                         <a class="btn btn-link col-9 w-100" data-toggle="collapse" data-target="#@(danie.NormalizedNazwa+"collapse")" aria-expanded="true" aria-controls="@(danie.NormalizedNazwa+"collapse")">
 
@@ -98,16 +99,6 @@
                                                     }
                                                 }
                                             }
-                                            @if (danie.OpisDania != null)
-                                            {
-                                                <p class="mb-1">
-                                                    @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
-                                                </p>
-                                            }
-                                            else
-                                            {
-                                                <p class="mb-1">Brak opisu dania</p>
-                                            }
                                             <p>Cena: @danie.Cena</p>
                                             <script>
                                                 document.getElementById('@(danie.NormalizedNazwa+"heading")').onclick = function ()
@@ -121,11 +112,20 @@
                                         </form>
                                     </div>
 
-                                    <div id="@(danie.NormalizedNazwa+"collapse")" class="collapse" aria-labelledby="@(danie.NormalizedNazwa+"heading")" data-parent="#myTable">
+                                    <label id="@(danie.NormalizedNazwa+"collapse")" class="collapse" aria-labelledby="@(danie.NormalizedNazwa+"heading")" data-parent="#myTable">
                                         <div class="card-body">
-                                            @danie.OpisDania
+                                            @if (danie.OpisDania != null)
+                                            {
+                                                <p class="mb-1">
+                                                    @danie.OpisDania
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                <p class="mb-1">Brak opisu dania</p>
+                                            }
                                         </div>
-                                    </div>
+                                    </label>
                                 }
                             }
                         </div>
@@ -135,9 +135,9 @@
             else
             {
                 <!--Dania nalezace do nadrzednej kategorii bez podkategorii-->
-                <div id="@kategoria.NormalizedName">
+                <label id="@kategoria.NormalizedName">
                     <h4>@kategoria.Nazwa</h4>
-                </div>
+                </label>
                 <div class="card">
                     @foreach (var danie in Model.Dania)
                     {
@@ -165,16 +165,6 @@
                                             }
                                         }
                                     }
-                                    @if (danie.OpisDania != null)
-                                    {
-                                        <p class="mb-1">
-                                            @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
-                                        </p>
-                                    }
-                                    else
-                                    {
-                                        <p class="mb-1">Brak opisu dania</p>
-                                    }
                                     <p>Cena: @danie.Cena</p>
                                     <script>
                                                 document.getElementById('@(danie.NormalizedNazwa+"heading")').onclick = function ()
@@ -188,11 +178,20 @@
                                 </form>
                             </div>
 
-                            <div id="@(danie.NormalizedNazwa+"collapse")" class="collapse" aria-labelledby="@(danie.NormalizedNazwa+"heading")" data-parent="#myTable">
+                            <label id="@(danie.NormalizedNazwa+"collapse")" class="collapse" aria-labelledby="@(danie.NormalizedNazwa+"heading")" data-parent="#myTable">
                                 <div class="card-body">
-                                    @danie.OpisDania
+                                    @if (danie.OpisDania != null)
+                                    {
+                                        <p class="mb-1">
+                                            @danie.OpisDania
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        <p class="mb-1">Brak opisu dania</p>
+                                    }
                                 </div>
-                            </div>
+                            </label>
                         }
                     }
                 </div>
@@ -290,16 +289,6 @@
                                                                         <i class="fas fa-fire" style="color:red"></i>
                                                                     }*@
                                                             </div>
-                                                            @if (danie.OpisDania != null)
-                                                            {
-                                                                <p class="mb-1">
-                                                                    @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
-                                                                </p>
-                                                            }
-                                                            else
-                                                            {
-                                                                <p class="mb-1">Brak opisu dania</p>
-                                                            }
                                                             <small>Cena: @danie.Cena</small>
                                                         </div>
                                                     }
@@ -366,16 +355,6 @@
                                                                         <i class="fas fa-fire" style="color:red"></i>
                                                                     }*@
                                                             </div>
-                                                            @if (danie.OpisDania != null)
-                                                            {
-                                                                <p class="mb-1">
-                                                                    @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
-                                                                </p>
-                                                            }
-                                                            else
-                                                            {
-                                                                <p class="mb-1">Brak opisu dania</p>
-                                                            }
                                                             <p>Cena: @danie.Cena</p>
                                                         </div>
 
@@ -479,16 +458,6 @@
                                                                     <i class="fas fa-fire" style="color:red"></i>
                                                                 }*@
                                                         </div>
-                                                        @if (danie.OpisDania != null)
-                                                        {
-                                                            <p class="mb-1">
-                                                                @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
-                                                            </p>
-                                                        }
-                                                        else
-                                                        {
-                                                            <p class="mb-1">Brak opisu dania</p>
-                                                        }
                                                         <p>Cena: @danie.Cena</p>
 
                                                     </div>
@@ -572,16 +541,6 @@
                                                                 <i class="fas fa-fire" style="color:red"></i>
                                                             }*@
                                                     </div>
-                                                    @if (danie.OpisDania != null)
-                                                    {
-                                                        <p class="mb-1">
-                                                            @danie.OpisDania.Substring(0, (30 >= danie.OpisDania.Length ? danie.OpisDania.Length : 30)) ...
-                                                        </p>
-                                                    }
-                                                    else
-                                                    {
-                                                        <p class="mb-1">Brak opisu dania</p>
-                                                    }
                                                     <p>Cena: @danie.Cena</p>
                                                 </div>
 

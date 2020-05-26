@@ -49,7 +49,7 @@
             </button>
             <label class="col justify-content-center">@ViewData["username"]</label>
             @*<button class="btn btn-success col">Zapłać za wszystkie zamówienia</button>*@
-            <input class="form-control col" id="myInput" type="text" placeholder="Search..">
+            <input class="form-control col" id="myInput" type="text" placeholder="Szukaj dania po nazwie">
             <div class="body_ col" id="body_"><div id="timediv"></div></div>
         </nav>
     </header>
@@ -152,6 +152,10 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
+            //$("#myInput").on("keyup", function () {
+            //    var value = $(this).val().toLowerCase();
+            //    $("#myTable p").toggle();
+            //});
             //$("#myInput").on("keyup", function () {
             //    var value = $(this).val().toLowerCase();
             //    $("#myTable button").filter(function () {

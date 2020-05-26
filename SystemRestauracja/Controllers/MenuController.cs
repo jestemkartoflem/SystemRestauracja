@@ -31,15 +31,15 @@ namespace SystemRestauracja.Controllers
             ViewData["username"] = User.Identity.Name;
             var model = new OrderMenuViewModel()
             {
-                CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList(), //potrzebne do menu
-                ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).ToList(), //potrzebne do menu
-                Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).ToList(), //potrzebne do menu
+                CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x=>x.Nazwa).ToList(), //potrzebne do menu
+                ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
+                Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie==StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                 Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                 DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
                 //SelectedZestawId = zestaw.Id, //zestaw do ktorego obecnie wybieramy
                 //SelectedZamowienieId = zamowienie.Id, //obecnie wybrane zamowienie
-                Symbole = _context.Symbole.ToList(),
+                Symbole = _context.Symbole.OrderBy(x => x.Nazwa).ToList(),
                 SymboleDoDania = _context.SymboleDoDania.ToList()
 
             };
@@ -53,9 +53,9 @@ namespace SystemRestauracja.Controllers
             ViewData["username"] = User.Identity.Name;
             var model = new OrderMenuViewModel()
             {
-                CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList(), //potrzebne do menu
-                ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).ToList(), //potrzebne do menu
-                Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).ToList(), //potrzebne do menu
+                CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
+                ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
+                Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == 
                     User.FindFirstValue(ClaimTypes.NameIdentifier) && 
                     (x.StatusZamowienie == StatusZamowienie.Oczekujace || 
@@ -64,7 +64,7 @@ namespace SystemRestauracja.Controllers
                 DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
                 //SelectedZestawId = zestaw.Id, //zestaw do ktorego obecnie wybieramy
                 SelectedZamowienieId = selectedZamowienieId, //obecnie wybrane zamowienie
-                Symbole = _context.Symbole.ToList(),
+                Symbole = _context.Symbole.OrderBy(x => x.Nazwa).ToList(),
                 SymboleDoDania = _context.SymboleDoDania.ToList()
 
             };
@@ -78,15 +78,15 @@ namespace SystemRestauracja.Controllers
             ViewData["username"] = User.Identity.Name;
             var model = new OrderMenuViewModel()
             {
-                CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList(), //potrzebne do menu
-                ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).ToList(), //potrzebne do menu
-                Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).ToList(), //potrzebne do menu
+                CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
+                ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
+                Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                 Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                 DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
                 SelectedZestawId = selectedZestawId, //zestaw do ktorego obecnie wybieramy
                 SelectedZamowienieId = selectedZamowienieId, //obecnie wybrane zamowienie
-                Symbole = _context.Symbole.ToList(),
+                Symbole = _context.Symbole.OrderBy(x => x.Nazwa).ToList(),
                 SymboleDoDania = _context.SymboleDoDania.ToList()
 
             };
@@ -251,13 +251,13 @@ namespace SystemRestauracja.Controllers
                 ViewData["username"] = User.Identity.Name;
                 var model = new OrderMenuViewModel()
                 {
-                    CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList(), //potrzebne do menu
-                    ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).ToList(), //potrzebne do menu
+                    CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
+                    ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                     Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).ToList(), //potrzebne do menu
                     Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                     Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                     DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
-                    Symbole = _context.Symbole.ToList(),
+                    Symbole = _context.Symbole.OrderBy(x => x.Nazwa).ToList(),
                     SymboleDoDania = _context.SymboleDoDania.ToList()
 
                 };

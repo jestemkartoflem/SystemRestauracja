@@ -197,10 +197,25 @@ namespace SystemRestauracja.Controllers
                 }
                 if (catToDelete.HasChildren) //jezeli ma dzieci
                 {
-                    //to usun wszystkie podkategorie
+
+
+
                     var ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId == categoryId).ToList();
                     foreach (var cat in ChildrenCategories)
                     {
+                        //to sprawdz czy ktores ma danie
+                        daniaWithThatCategory = _context.Dania.Where(x => x.CategoryId == cat.Id).ToList();
+                        if(daniaWithThatCategory.Any())
+                        {
+                            ModelState.AddModelError("Error", "Nie można usunąć kategorii ponieważ podkategoria ma przypisane dania.");
+                            ShowCategoriesViewModel model = new ShowCategoriesViewModel()
+                            {
+                                Kategorie = _context.Kategorie.OrderBy(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList()
+                            };
+
+                            return View("./ShowCategories", model);
+                        }
+                        //a jeśli nie ma to usun wszystkie podkategorie
                         _context.Remove(_context.Kategorie.Find(cat.Id));
                     }
                     _context.Remove(_context.Kategorie.Find(categoryId));
@@ -369,7 +384,7 @@ namespace SystemRestauracja.Controllers
                 case "name_desc":
                     model = new ShowDaniaViewModel()
                     {
-                        Dania = _context.Dania.OrderByDescending(x => x.Nazwa).ToList(),
+                        Dania = _context.Dania.OrderByDescending(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Kategorie = _context.Kategorie.ToList(),
                         SymboleDoDania = _context.SymboleDoDania.ToList(),
                         Symbole = _context.Symbole.ToList()
@@ -378,7 +393,7 @@ namespace SystemRestauracja.Controllers
                 case "date":
                     model = new ShowDaniaViewModel()
                     {
-                        Dania = _context.Dania.OrderBy(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.OrderBy(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Kategorie = _context.Kategorie.ToList(),
                         SymboleDoDania = _context.SymboleDoDania.ToList(),
                         Symbole = _context.Symbole.ToList()
@@ -387,7 +402,7 @@ namespace SystemRestauracja.Controllers
                 case "date_desc":
                     model = new ShowDaniaViewModel()
                     {
-                        Dania = _context.Dania.OrderByDescending(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.OrderByDescending(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Kategorie = _context.Kategorie.ToList(),
                         SymboleDoDania = _context.SymboleDoDania.ToList(),
                         Symbole = _context.Symbole.ToList()
@@ -396,7 +411,7 @@ namespace SystemRestauracja.Controllers
                 case "price":
                     model = new ShowDaniaViewModel()
                     {
-                        Dania = _context.Dania.OrderBy(x => x.Cena).ToList(),
+                        Dania = _context.Dania.OrderBy(x => x.Cena).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Kategorie = _context.Kategorie.ToList(),
                         SymboleDoDania = _context.SymboleDoDania.ToList(),
                         Symbole = _context.Symbole.ToList()
@@ -405,7 +420,7 @@ namespace SystemRestauracja.Controllers
                 case "price_desc":
                     model = new ShowDaniaViewModel()
                     {
-                        Dania = _context.Dania.OrderByDescending(x => x.Cena).ToList(),
+                        Dania = _context.Dania.OrderByDescending(x => x.Cena).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Kategorie = _context.Kategorie.ToList(),
                         SymboleDoDania = _context.SymboleDoDania.ToList(),
                         Symbole = _context.Symbole.ToList()
@@ -414,7 +429,7 @@ namespace SystemRestauracja.Controllers
                 case "cat":
                     model = new ShowDaniaViewModel()
                     {
-                        Dania = _context.Dania.OrderBy(x => x.Category.Nazwa).ToList(),
+                        Dania = _context.Dania.OrderBy(x => x.Category.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Kategorie = _context.Kategorie.ToList(),
                         SymboleDoDania = _context.SymboleDoDania.ToList(),
                         Symbole = _context.Symbole.ToList()
@@ -423,7 +438,7 @@ namespace SystemRestauracja.Controllers
                 case "cat_desc":
                     model = new ShowDaniaViewModel()
                     {
-                        Dania = _context.Dania.OrderByDescending(x => x.Category.Nazwa).ToList(),
+                        Dania = _context.Dania.OrderByDescending(x => x.Category.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Kategorie = _context.Kategorie.ToList(),
                         SymboleDoDania = _context.SymboleDoDania.ToList(),
                         Symbole = _context.Symbole.ToList()
@@ -432,7 +447,7 @@ namespace SystemRestauracja.Controllers
                 default:
                     model = new ShowDaniaViewModel()
                     {
-                        Dania = _context.Dania.OrderBy(x => x.Nazwa).ToList(),
+                        Dania = _context.Dania.OrderBy(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Kategorie = _context.Kategorie.ToList(),
                         SymboleDoDania = _context.SymboleDoDania.ToList(),
                         Symbole = _context.Symbole.ToList()
@@ -454,7 +469,8 @@ namespace SystemRestauracja.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        [HttpGet]
+        [Route("Admin/DeleteDanie/{danieId}")]
         public IActionResult DeleteDanie(Guid danieId, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -472,7 +488,7 @@ namespace SystemRestauracja.Controllers
                 _context.SaveChanges();
             }
 
-            return View();
+            return RedirectToAction("ShowDania");
         }
 
         [HttpGet]
@@ -529,24 +545,27 @@ namespace SystemRestauracja.Controllers
                 }
                 _context.SaveChanges();
 
-                foreach (var guid in model.WybraneIdSymboli)
+                if (model.WybraneIdSymboli != null)
                 {
-                    var symbolDoDania = new SymbolDoDania()
+                    foreach (var guid in model.WybraneIdSymboli)
                     {
-                        SymbolId = guid,
-                        DanieId = danieToEdit.Id,
-                        CreateDate = DateTime.Now,
-                        CreatedBy = "SYSTEM",
-                        Danie = danieToEdit,
-                        Symbol = _context.Symbole.FirstOrDefault(x => x.Id == guid)
-                    };
+                        var symbolDoDania = new SymbolDoDania()
+                        {
+                            SymbolId = guid,
+                            DanieId = danieToEdit.Id,
+                            CreateDate = DateTime.Now,
+                            CreatedBy = "SYSTEM",
+                            Danie = danieToEdit,
+                            Symbol = _context.Symbole.FirstOrDefault(x => x.Id == guid)
+                        };
 
-                    var c = _context.SymboleDoDania.FirstOrDefault(x => x.SymbolId == symbolDoDania.SymbolId && x.DanieId == symbolDoDania.DanieId);
-                    if (c == null)
-                    {
-                        _context.SymboleDoDania.Add(symbolDoDania);
+                        var c = _context.SymboleDoDania.FirstOrDefault(x => x.SymbolId == symbolDoDania.SymbolId && x.DanieId == symbolDoDania.DanieId);
+                        if (c == null)
+                        {
+                            _context.SymboleDoDania.Add(symbolDoDania);
+                        }
+                        _context.SaveChanges();
                     }
-                    _context.SaveChanges();
                 }
 
                 return RedirectToAction("ShowDania");
@@ -871,14 +890,14 @@ namespace SystemRestauracja.Controllers
                 _context.SaveChanges();
                 var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zestaw.ZamowienieId);
                 bool wszystkieZestawyWydane = true;
-                foreach(var z in _context.Zestawy)
+                foreach (var z in _context.Zestawy)
                 {
-                    if(z.ZamowienieId==zamowienie.Id && z.StatusZestawu!=StatusZestaw.Wydane)
+                    if (z.ZamowienieId == zamowienie.Id && z.StatusZestawu != StatusZestaw.Wydane)
                     {
                         wszystkieZestawyWydane = false;
                     }
                 }
-                if(wszystkieZestawyWydane)
+                if (wszystkieZestawyWydane)
                 {
                     zamowienie.StatusZamowienie = StatusZamowienie.Usuniete;
                     zamowienie.DeleteDate = DateTime.Now;

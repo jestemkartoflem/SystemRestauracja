@@ -1,6 +1,6 @@
 ﻿@model SystemRestauracja.Models.Admin.ShowDaniaViewModel
 @{
-    ViewData["Title"] = "Lista Kategorii";
+    ViewData["Title"] = "Lista Dań";
 }
 
 @if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
@@ -21,7 +21,7 @@
     </form>
 </div>
 
-<div class="container">
+<div class="container-fluid list-group col">
     <div class="row">
         <label class="col w-25"></label>
         <label class="col">@Html.ActionLink("Nazwa", "ShowDania", new { sortOrder = ViewBag.NameSortParm })</label>
@@ -43,7 +43,7 @@
         {
             <div>
                 <div class="row">
-                    <i class="col w-25 btn btn-outline-info">?</i>
+                    <div class="col w-25"></div>
                     <a class="col text-primary" role="button">@danie.Nazwa</a>
                     <label class="col text-primary">
                         @foreach (var cat in Model.Kategorie)
@@ -81,7 +81,7 @@
         @for (int i = 1; i <= Model.totalPages; i++)
         {
             <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
-                <a class="page-link" href="@Url.Action("ShowCategories", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+                <a class="page-link" href="@Url.Action("ShowDania", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
             </li>
         }
     </ul>
