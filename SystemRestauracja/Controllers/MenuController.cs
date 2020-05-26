@@ -31,10 +31,10 @@ namespace SystemRestauracja.Controllers
             ViewData["username"] = User.Identity.Name;
             var model = new OrderMenuViewModel()
             {
-                CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x=>x.Nazwa).ToList(), //potrzebne do menu
+                CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
-                Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie==StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
+                Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                 Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                 DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
                 //SelectedZestawId = zestaw.Id, //zestaw do ktorego obecnie wybieramy
@@ -56,9 +56,9 @@ namespace SystemRestauracja.Controllers
                 CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
-                Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == 
-                    User.FindFirstValue(ClaimTypes.NameIdentifier) && 
-                    (x.StatusZamowienie == StatusZamowienie.Oczekujace || 
+                Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId ==
+                    User.FindFirstValue(ClaimTypes.NameIdentifier) &&
+                    (x.StatusZamowienie == StatusZamowienie.Oczekujace ||
                     x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                 Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                 DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
@@ -206,18 +206,18 @@ namespace SystemRestauracja.Controllers
                 }
             }
             var zestawy = new List<Zestaw>();
-            foreach (var zestaw in _context.Zestawy.Where(x=>x.ZamowienieId == zamowienieId).ToList())
+            foreach (var zestaw in _context.Zestawy.Where(x => x.ZamowienieId == zamowienieId).ToList())
             {
                 if (zestaw.ZamowienieId == zamowienieId)
                 {
                     zestawy.Add(zestaw);
                 }
-                //jezeli nie ma zadnych zestawow w zamowieniu to usuwamy zamowienie
-                if (!zestawy.Any())
-                {
-                    _context.Zamowienia.Remove(_context.Zamowienia.Find(zamowienieId));
-                    _context.SaveChanges();
-                }
+            }
+            //jezeli nie ma zadnych zestawow w zamowieniu to usuwamy zamowienie
+            if (!zestawy.Any())
+            {
+                _context.Zamowienia.Remove(_context.Zamowienia.Find(zamowienieId));
+                _context.SaveChanges();
             }
             var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zamowienieId);
             if (zamowienie != null)
@@ -292,7 +292,7 @@ namespace SystemRestauracja.Controllers
             var zestaw = _context.Zestawy.FirstOrDefault(x => x.Id == ddz.ZestawId);
             var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zestaw.ZamowienieId);
             var danieCena = _context.Dania.FirstOrDefault(x => x.Id == ddz.DanieId).Cena;
-            
+
             zamowienie.CenaSuma -= zestaw.CenaZestawu;
             zestaw.CenaZestawu -= danieCena;
             _context.Zestawy.Update(zestaw);
@@ -308,6 +308,26 @@ namespace SystemRestauracja.Controllers
             var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zamowienieId);
             if (zamowienie != null)
             {
+                var zestaw = _context.Zestawy.FirstOrDefault(x => x.ZamowienieId == zamowienie.Id);
+                if (zestaw == null)
+                {
+                    _context.Zamowienia.Remove(_context.Zamowienia.Find(zamowienieId));
+                    _context.SaveChanges();
+
+                    return RedirectToAction("OrderMenu");
+                }
+                else
+                {
+                    var ddz = _context.DaniaDoZestawu.FirstOrDefault(x => x.ZestawId == zestaw.Id);
+                    if (ddz == null)
+                    {
+                        if (zestaw.StatusZestawu == StatusZestaw.Dodawany)
+                        {
+                            _context.Zestawy.Remove(_context.Zestawy.Find(zestaw.Id));
+                            _context.SaveChanges();
+                        }
+                    }
+                }
                 zamowienie.StatusZamowienie = StatusZamowienie.Oplacane;
                 zamowienie.DeleteDate = DateTime.Now;
                 _context.Zamowienia.Update(zamowienie);

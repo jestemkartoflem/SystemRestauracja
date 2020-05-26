@@ -50,7 +50,13 @@
             <label class="col justify-content-center">@ViewData["username"]</label>
             @*<button class="btn btn-success col">Zapłać za wszystkie zamówienia</button>*@
             <input class="form-control col" id="myInput" type="text" placeholder="Szukaj dania po nazwie">
-            <div class="body_ col" id="body_"><div id="timediv"></div></div>
+            <div class="body_ col" id="body_">
+                <div id="timediv">
+                </div>
+            </div>
+            <button class="btn btn-outline-info" data-toggle="modal" data-target="#exampleModal">
+                <p class="fa fa-question-circle"></p>
+            </button>
         </nav>
     </header>
     <div class="d-flex toggled" id="wrapper" style="position:fixed;">
@@ -93,22 +99,39 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Pomoc</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body" id="modalbody">
-                    Coś poszło nie tak.
+                    <p>
+                        Aby zamówić danie, dodaj nowe zamówienie a następnie dodaj zestaw.
+                    </p>
+                    <p>
+                        Zestawy pomagają nam uporządkować wasze zamówienia od strony kuchni.
+                        Zestaw jest aktywny jeżeli jest żółtego koloru -
+                        aby sprawić by inny zestaw był aktywny należy kliknąć przycisk
+                        <button type="submit" class="btn btn-sm btn-outline-success">
+                            <span class="fa fa-plus"></span>
+                        </button>
+                        obok jego nazwy.
+                    </p>
+                    <p>
+                        Aby wybrać inne zamówienie wystarczy na nie kliknąć.
+                    </p>
+                    <p>
+                        Boczna lista rozwijana przyciskiem w lewym górnym rogu pokazuje wszystkie kategorie w menu do których można szybko skakać jednym kliknięciem.
+                    </p>
+                    <p>
+                        Jeżeli zakończono składanie zamówienia prosimy o kliknięcie przycisku <button class="btn btn-outline-success col">Potwierdź zamówienie</button>
+                        Wyświetla się wtedy jako aktywne od strony kuchni.
+                    </p>
+                    <p>
+                        Przed wyjściem prosimy o kliknięcie przycisku <button class="btn btn-outline-success col">Zgłoś chęć zapłaty</button>
+                        Po jakimś czasie podejdzie do was kelner aby odebrać zapłatę za posiłek.
+                    </p>
                 </div>
-                <form>
-                    <div class="modal-footer" id="footer">
-
-                    </div>
-                    <div>
-                        <textarea class="form-control w-100" placeholder="Wpisz uwagi do zamówienia(np. bez pomidora, surówki itp)"></textarea>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

@@ -243,7 +243,7 @@
                                                         <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="Usuń" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
                                                     </form>
                                                 }
-                                                <h5 class="mb-1">Zestaw</h5>
+                                                <h5 class="mb-1">Zestaw @zestaw.ZestawNr</h5>
                                             </div>
 
                                         </div>
@@ -308,10 +308,12 @@
                                                     <form>
                                                         <input type="submit" class="btn btn-sm btn-outline-danger" formmethod="post" value="Usuń" asp-action="RemoveZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
 
-                                                        <input type="submit" class="btn btn-sm btn-outline-success" value="+" asp-action="SelectZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
+                                                        <button type="submit" class="btn btn-sm btn-outline-success" asp-action="SelectZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id">
+                                                            <span class="fa fa-plus"></span>
+                                                        </button>
                                                     </form>
                                                 }
-                                                <h5 class="mb-1">Zestaw</h5>
+                                                <h5 class="mb-1">Zestaw @zestaw.ZestawNr</h5>
                                             </div>
                                         </div>
                                         @foreach (var ddz in Model.DaniaDoZestawow)
@@ -414,7 +416,7 @@
                                                     <input type="submit" class="btn btn-sm btn-outline-success" value="+" asp-action="SelectZestaw" asp-controller="Menu" asp-route-zestawId="@zestaw.Id" />
                                                 </form>
                                             }
-                                            <h5 class="mb-1">Zestaw</h5>
+                                            <h5 class="mb-1">Zestaw @zestaw.ZestawNr</h5>
                                         </div>
                                     </div>
                                     @foreach (var ddz in Model.DaniaDoZestawow)
@@ -503,7 +505,7 @@
                             <div method="post" class="list-group-item list-group-item-info flex-column align-items-start mb-2">
                                 <div class="d-flex w-100 justify-content-between list-group">
                                     <div class="row">
-                                        <h5 class="mb-1">Zestaw</h5>
+                                        <h5 class="mb-1">Zestaw @zestaw.ZestawNr</h5>
                                     </div>
                                 </div>
                                 @foreach (var ddz in Model.DaniaDoZestawow)
