@@ -78,11 +78,11 @@
                                 if (danie.CategoryId == podkat.Id)
                                 {
                                     <div class="card-header row" id="@(danie.NormalizedNazwa+"heading")">
-                                        <button class="btn btn-link col w-100" data-toggle="collapse" data-target="#@(danie.NormalizedNazwa+"collapse")" aria-expanded="true" aria-controls="@(danie.NormalizedNazwa+"collapse")">
+                                        <a class="btn btn-link col-9 w-100" data-toggle="collapse" data-target="#@(danie.NormalizedNazwa+"collapse")" aria-expanded="true" aria-controls="@(danie.NormalizedNazwa+"collapse")">
 
                                             @*<form class="">
-                                                    <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                                </form>*@
+                                                <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                            </form>*@
                                             @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
                                             <h5 class="mb-1">@danie.Nazwa</h5>
                                             @foreach (var ssd in Model.SymboleDoDania)
@@ -115,7 +115,7 @@
                                                     document.getElementById('@(danie.NormalizedNazwa+"collapse")').collapse('toggle');
                                                 }
                                             </script>
-                                        </button>
+                                        </a>
                                         <form class="col">
                                             <button id="zamowienieBtn" type="submit" formaction="/Menu/AddDanieToZestaw/@danie.Id/@Model.SelectedZestawId" class="btn btn-outline-success h-100 w-auto float-right">Dodaj</button>
                                         </form>
@@ -145,11 +145,11 @@
                         {
 
                             <div class="card-header row" id="@(danie.NormalizedNazwa+"heading")">
-                                <button class="btn btn-link col w-100" data-toggle="collapse" data-target="#@(danie.NormalizedNazwa+"collapse")" aria-expanded="true" aria-controls="@(danie.NormalizedNazwa+"collapse")">
+                                <a class="btn btn-link col-9 w-100" data-toggle="collapse" data-target="#@(danie.NormalizedNazwa+"collapse")" aria-expanded="true" aria-controls="@(danie.NormalizedNazwa+"collapse")">
 
                                     @*<form class="">
-                                            <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                        </form>*@
+                                        <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                    </form>*@
                                     @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
                                     <h5 class="mb-1">@danie.Nazwa</h5>
                                     @foreach (var ssd in Model.SymboleDoDania)
@@ -182,7 +182,7 @@
                                                     document.getElementById('@(danie.NormalizedNazwa+"collapse")').collapse('toggle');
                                                 }
                                     </script>
-                                </button>
+                                </a>
                                 <form class="col">
                                     <button id="zamowienieBtn" type="submit" formaction="/Menu/AddDanieToZestaw/@danie.Id/@Model.SelectedZestawId" class="btn btn-outline-success h-100 w-auto float-right">Dodaj</button>
                                 </form>

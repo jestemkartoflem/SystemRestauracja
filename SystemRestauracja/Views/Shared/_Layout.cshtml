@@ -132,7 +132,7 @@
 
 
             var time = document.getElementById('timediv');
-            time.innerHTML = date.toLocaleTimeString();
+            time.innerHTML = date.toLocaleTimeString('en-GB');
 
 
         }
@@ -146,6 +146,18 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
+            $("#myInput").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#myTable div").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+            //$("#myInput").on("keyup", function () {
+            //    var value = $(this).val().toLowerCase();
+            //    $("#myTable button").filter(function () {
+            //        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            //    });
+            //});
         });
     </script>
 
