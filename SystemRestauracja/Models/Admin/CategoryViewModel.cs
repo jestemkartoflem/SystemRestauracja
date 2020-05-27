@@ -9,7 +9,7 @@ namespace SystemRestauracja.Models.Admin
 {
     public class CategoryViewModel
     {
-        [Required]
+        [Required(ErrorMessage ="Nazwa kategorii jest wymagana")]
         public string CatName { get; set; }
         public bool HasParentCategory { get; set; }
         public List<Kategoria> ParentCategoryChoice { get; set; }

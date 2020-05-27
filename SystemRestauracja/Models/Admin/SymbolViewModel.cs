@@ -10,9 +10,9 @@ namespace SystemRestauracja.Models.Admin
 {
     public class SymbolViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Nazwa symbolu jest wymagana")]
         public string SymbolName { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Proszę wybrać obraz reprezentujący symbol")]
         //public string SymbolFontId { get; set; }
         public IFormFile SymbolImage { get; set; }
         //[Required]

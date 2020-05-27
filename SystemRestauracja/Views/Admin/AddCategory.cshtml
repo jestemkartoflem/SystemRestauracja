@@ -7,6 +7,7 @@
 <form class="ml-5 col" id="form">
     <div class="row">
         @Html.TextBoxFor(model => model.CatName, new { @class = "form-control", @placeholder = "Nazwa" })
+        <span asp-validation-for="CatName" class="text-danger"></span>
     </div>
     <div class="row">
         <input type="checkbox" class="form-check-input" id="HasParent" asp-for="HasParentCategory" />

@@ -54,7 +54,7 @@ namespace SystemRestauracja.Controllers
         public IActionResult AddCategory(CategoryViewModel model)
         {
             var kat = _context.Kategorie.FirstOrDefault(x => x.Nazwa == model.CatName);
-            if (kat == null)
+            if (kat == null && ModelState.IsValid)
             {
                 Kategoria k;
                 if (!model.HasParentCategory)
@@ -92,6 +92,11 @@ namespace SystemRestauracja.Controllers
 
                 _context.SaveChanges();
 
+            }
+            else
+            {
+                model.ParentCategoryChoice = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList();
+                return View(model);
             }
             return RedirectToAction("Index");
         }
@@ -205,7 +210,7 @@ namespace SystemRestauracja.Controllers
                     {
                         //to sprawdz czy ktores ma danie
                         daniaWithThatCategory = _context.Dania.Where(x => x.CategoryId == cat.Id).ToList();
-                        if(daniaWithThatCategory.Any())
+                        if (daniaWithThatCategory.Any())
                         {
                             ModelState.AddModelError("Error", "Nie można usunąć kategorii ponieważ podkategoria ma przypisane dania.");
                             ShowCategoriesViewModel model = new ShowCategoriesViewModel()
@@ -264,7 +269,7 @@ namespace SystemRestauracja.Controllers
         {
 
             var catToEdit = _context.Kategorie.FirstOrDefault(x => x.Id == categoryId);
-            if (catToEdit != null)
+            if (catToEdit != null && ModelState.IsValid)
             {
                 catToEdit.Nazwa = model.CatName;
                 if (model.HasParentCategory)
@@ -294,8 +299,11 @@ namespace SystemRestauracja.Controllers
                 _context.SaveChanges();
                 return RedirectToAction("ShowCategories");
             }
-            //cos poszlo nie tak, odswiez strone
-            return View("./AddCategory");
+            else
+            {
+                model.ParentCategoryChoice = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList();
+                return View("./AddCategory", model);
+            }
         }
 
         //DANIE CRUD
@@ -356,7 +364,13 @@ namespace SystemRestauracja.Controllers
                 }
 
             }
-            return RedirectToAction("Index");
+            else
+            {
+                model.CategoryChoice = _context.Kategorie.Where(x => x.HasChildren == false).ToList();
+                ViewBag.Symbole = _context.Symbole.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nazwa }).ToList();
+                return View(model);
+            }
+            return RedirectToAction("ShowDania");
         }
 
         //[HttpGet]
@@ -511,7 +525,7 @@ namespace SystemRestauracja.Controllers
                     Price = danieToEdit.Cena
                 };
 
-
+                model.CategoryChoice = _context.Kategorie.Where(x => x.HasChildren == false).ToList();
                 ViewBag.Symbole = _context.Symbole.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nazwa }).ToList();
                 return View("./AddDanie", model);
             }
@@ -525,7 +539,7 @@ namespace SystemRestauracja.Controllers
 
 
             var danieToEdit = _context.Dania.FirstOrDefault(x => x.Id == danieId);
-            if (danieToEdit != null)
+            if (danieToEdit != null && ModelState.IsValid)
             {
                 danieToEdit.Nazwa = model.DanieName;
                 danieToEdit.NormalizedNazwa = Encoding.ASCII.GetString(Encoding.GetEncoding("Cyrillic").GetBytes(model.DanieName.Replace(" ", "")));
@@ -571,6 +585,8 @@ namespace SystemRestauracja.Controllers
                 return RedirectToAction("ShowDania");
             }
             //cos poszlo nie tak, odswiez strone
+            model.CategoryChoice = _context.Kategorie.Where(x => x.HasChildren == false).ToList();
+            ViewBag.Symbole = _context.Symbole.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nazwa }).ToList();
             return View("./AddDanie", model);
         }
 
@@ -592,34 +608,39 @@ namespace SystemRestauracja.Controllers
         {
             //do użytku TYLKO do dodawania nowych stolików w restauracji, przynajmniej na tym etapie rozwoju aplikacji.
             //Nazwa "User" jest ogólna by dodać możliwość późniejszego rozwoju aplikacji.
-            var UserManager = _serviceProvider.GetRequiredService<UserManager<UserAccount>>();
-            var newUser = new UserAccount
+            if (ModelState.IsValid)
             {
-                UserName = model.UserName,
-                IsActive = "true",
-                StatusStolika = StatusStolik.Pusty,
-            };
-
-            string userPassword = model.Password;
-            var user = await UserManager.FindByNameAsync(model.UserName);
-
-            if (user == null)
-            {
-                var createUser = await UserManager.CreateAsync(newUser, userPassword);
-                if (createUser.Succeeded)
+                var UserManager = _serviceProvider.GetRequiredService<UserManager<UserAccount>>();
+                var newUser = new UserAccount
                 {
-                    await UserManager.AddToRoleAsync(newUser, "User");
+                    UserName = model.UserName,
+                    IsActive = "true",
+                    StatusStolika = StatusStolik.Pusty,
+                };
+
+                string userPassword = model.Password;
+                var user = await UserManager.FindByNameAsync(model.UserName);
+
+                if (user == null)
+                {
+                    var createUser = await UserManager.CreateAsync(newUser, userPassword);
+                    if (createUser.Succeeded)
+                    {
+                        await UserManager.AddToRoleAsync(newUser, "User");
+                    }
                 }
-            }
-            else
-            {
-                user.IsActive = "true";
-                _context.Users.Update(user);
-                _context.SaveChanges();
+                else
+                {
+                    user.IsActive = "true";
+                    _context.Users.Update(user);
+                    _context.SaveChanges();
 
-            }
+                }
 
-            return await Task.Run(() => RedirectToAction("Index"));
+                return await Task.Run(() => RedirectToAction("Index"));
+            }
+            //coś poszło nie tak, odśwież stronę
+            return await Task.Run(() => View("./AddUser"));
         }
 
         [HttpGet]
@@ -728,7 +749,7 @@ namespace SystemRestauracja.Controllers
 
             var UserManager = _serviceProvider.GetRequiredService<UserManager<UserAccount>>();
             var userToEdit = await UserManager.FindByIdAsync(userId);
-            if (userToEdit != null)
+            if (userToEdit != null && ModelState.IsValid)
             {
                 userToEdit.StatusStolika = StatusStolik.Pusty;
                 userToEdit.UserName = model.UserName;

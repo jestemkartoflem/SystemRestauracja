@@ -9,8 +9,12 @@ namespace SystemRestauracja.Models.Admin
 {
     public class UserViewModel
     {
-        [Required]
+        [Required(ErrorMessage = "Nazwa użytkownika jest wymagana")]
+        [RegularExpression(@"[^\s]+", ErrorMessage ="Nazwa użytkownika jest nieprawidłowa")]
         public string UserName { get; set; }
+
+        [Required(ErrorMessage = "Hasło jest wymagane")]
+        [RegularExpression(@"[^\s]+", ErrorMessage = "Hasło jest nieprawidłowe")]
         public string Password { get; set; }
         public StatusStolik Status { get; set; }
     }
