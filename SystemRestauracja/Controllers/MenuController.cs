@@ -13,7 +13,7 @@ using SystemRestauracja.Models;
 namespace SystemRestauracja.Controllers
 {
     [Authorize]
-    [Route("[controller]/[action]")]
+    //[Route("[controller]/[action]")]
     public class MenuController : Controller
     {
         private RestaurantDbContext _context;
@@ -29,6 +29,9 @@ namespace SystemRestauracja.Controllers
         public IActionResult OrderMenu()
         {
             ViewData["username"] = User.Identity.Name;
+            //var userId = User.FindFirstValue(ClaimTypes.Name);
+            //var user = await userManager.FindByIdAsync(userId);
+            //var role = await userManager.GetRolesAsync(user);
             var model = new OrderMenuViewModel()
             {
                 CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
@@ -138,6 +141,12 @@ namespace SystemRestauracja.Controllers
         [Route("/Menu/AddZestaw/{zamowienieId}")]
         public IActionResult AddZestaw(Guid zamowienieId)
         {
+            var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zamowienieId && x.StatusZamowienie==StatusZamowienie.Dodawane);
+            if (zamowienie == null)
+            {
+                TempData["Warning"] = "Wystąpił błąd - zestaw nie został dodany";
+                return RedirectToAction("OrderMenu");
+            }
             var set = new Zestaw
             {
                 ZamowienieId = zamowienieId,
@@ -167,6 +176,10 @@ namespace SystemRestauracja.Controllers
                 _context.Zamowienia.Update(zamowienie);
                 _context.Zestawy.Remove(_context.Zestawy.Find(zestawId));
                 _context.SaveChanges();
+            }
+            else
+            {
+                TempData["Warning"] = "Nie można usunąć wybranego zamówienia";
             }
 
             return RedirectToAction("OrderMenu");
@@ -288,16 +301,23 @@ namespace SystemRestauracja.Controllers
         public IActionResult RemoveDanieFromZestaw(Guid ddzId)
         {
             var ddz = _context.DaniaDoZestawu.FirstOrDefault(x => x.Id == ddzId);
-            _context.DaniaDoZestawu.Remove(_context.DaniaDoZestawu.Find(ddzId));
-            var zestaw = _context.Zestawy.FirstOrDefault(x => x.Id == ddz.ZestawId);
-            var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zestaw.ZamowienieId);
-            var danieCena = _context.Dania.FirstOrDefault(x => x.Id == ddz.DanieId).Cena;
+            if (ddz != null)
+            {
+                _context.DaniaDoZestawu.Remove(_context.DaniaDoZestawu.Find(ddzId));
+                var zestaw = _context.Zestawy.FirstOrDefault(x => x.Id == ddz.ZestawId);
+                var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zestaw.ZamowienieId);
+                var danieCena = _context.Dania.FirstOrDefault(x => x.Id == ddz.DanieId).Cena;
 
-            zamowienie.CenaSuma -= zestaw.CenaZestawu;
-            zestaw.CenaZestawu -= danieCena;
-            _context.Zestawy.Update(zestaw);
-            _context.Zamowienia.Update(zamowienie);
-            _context.SaveChanges();
+                zamowienie.CenaSuma -= zestaw.CenaZestawu;
+                zestaw.CenaZestawu -= danieCena;
+                _context.Zestawy.Update(zestaw);
+                _context.Zamowienia.Update(zamowienie);
+                _context.SaveChanges();
+            }
+            else
+            {
+                TempData["Warning"] = "Danie nie istnieje w tym zestawie";
+            }
             return RedirectToAction("OrderMenu");
         }
 
@@ -445,6 +465,20 @@ namespace SystemRestauracja.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [HttpPost]
+        [Route("/Menu/AddNotatka/{zestawId}")]
+        public IActionResult AddNotatka(OrderMenuViewModel model, Guid zestawId)
+        {
+            var zestaw = _context.Zestawy.FirstOrDefault(x => x.Id == zestawId);
+            if(model.Notatka!=null)
+            {
+                zestaw.NotatkaDoZestawu = model.Notatka;
+                _context.Zestawy.Update(zestaw);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("OrderMenu", new { selectedZamowienieId = zestaw.ZamowienieId, selectedZestawId = zestawId });
         }
     }
 }

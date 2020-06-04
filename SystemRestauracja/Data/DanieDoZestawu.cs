@@ -14,6 +14,6 @@ namespace SystemRestauracja.Data
 
         public UserAccount User { get; set; }
         public string UserId { get; set; }
-        public string Notatka { get; set; }
+        //public string Notatka { get; set; }
     }
 }

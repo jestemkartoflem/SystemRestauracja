@@ -36,7 +36,19 @@ namespace SystemRestauracja.Data
             builder.Entity<Zamowienie>()
                 .Property(f => f.ZamowienieNr)
                 .Metadata.AfterSaveBehavior = PropertySaveBehavior.Ignore;
-            
+            builder.Entity<Symbol>()
+                .HasIndex(f => f.Nazwa)
+                .IsUnique();
+            builder.Entity<Danie>()
+                .HasIndex(f => f.Nazwa)
+                .IsUnique();
+            builder.Entity<Kategoria>()
+                .HasIndex(f => f.Nazwa)
+                .IsUnique();
+            builder.Entity<UserAccount>()
+                .HasIndex(f => f.UserName)
+                .IsUnique();
+
 
             base.OnModelCreating(builder);
         }

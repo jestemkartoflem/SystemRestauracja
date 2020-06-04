@@ -10,6 +10,6 @@ namespace SystemRestauracja.Data
         public string Nazwa { get; set; }
         //public string FontId { get; set; }
         //public string Color { get; set; }
-        public string ImagePath { get; set; }
+        public string ObrazUrl { get; set; }
     }
 }

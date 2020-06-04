@@ -3,6 +3,11 @@
     ViewData["Title"] = "Lista symboli";
 }
 
+@if (TempData["Success"] != null)
+{
+    <p class="alert alert-success" id="successMessage">@TempData["Success"]</p>
+}
+
 <h1>Lista wszystkich symboli</h1>
 
 
@@ -11,14 +16,14 @@
 
 <div class="container-fluid list-group col">
     <div class="row">
-        <label class="col">Nazwa symbolu</label>
+        <label class="col">@Html.ActionLink("Nazwa symbolu", "ShowSymbols", new { sortOrder = ViewBag.NameSortParm })</label>
         <label class="col">Wygląd symbolu</label>
         <label class="col"></label>
         <label class="col"></label>
     </div>
 </div>
-<div class="" style="overflow-y:hidden; width:auto">
-    <form class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+<div class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+    <form>
         @foreach (var symbol in Model.Symbole)
         {
             <div>
@@ -29,7 +34,7 @@
                         <label class="col text-primary">@symbol.Color</label>
                             tu miejsce na wyswietlanie obrazka*@
                     <div class="text-center col">
-                        <img src="~/images/@symbol.ImagePath" class="rounded-circle float-left" height="32" width="32" asp-append-version="true" />
+                        <img src="~/images/@symbol.ObrazUrl" class="rounded-circle float-left" height="32" width="32" asp-append-version="true" />
                     </div>
                     <a class="btn btn-outline-info col" asp-action="EditSymbol" asp-controller="Admin" asp-route-symbolId="@symbol.Id">Edytuj</a>
                     <a class="btn btn-outline-danger col" asp-action="DeleteSymbol" asp-controller="Admin" asp-route-symbolId="@symbol.Id">Usuń</a>
@@ -38,4 +43,18 @@
             <hr />
         }
     </form>
+    <div>
+        <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
+    </div>
+
+    <div class="justify-content-center row">
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.totalPages; i++)
+            {
+                <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
+                    <a class="page-link" href="@Url.Action("ShowSymbols", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+                </li>
+            }
+        </ul>
+    </div>
 </div>

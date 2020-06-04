@@ -1,6 +1,11 @@
 ﻿@model OrderMenuViewModel
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Strona główna";
+}
+
+@if (TempData["Warning"] != null)
+{
+    <p class="alert alert-danger" id="successMessage">@TempData["Warning"]</p>
 }
 
 <div class="d-flex toggled" id="wrapper" style="position:fixed;">
@@ -77,13 +82,13 @@
                             {
                                 if (danie.CategoryId == podkat.Id)
                                 {
-                                    
+
                                     <div class="card-header row" id="@(danie.NormalizedNazwa+"heading")">
                                         <a class="btn btn-link col-9 w-100" data-toggle="collapse" data-target="#@(danie.NormalizedNazwa+"collapse")" aria-expanded="true" aria-controls="@(danie.NormalizedNazwa+"collapse")">
 
                                             @*<form class="">
-                                                <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                            </form>*@
+                                                    <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                                </form>*@
                                             @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
                                             <h5 class="mb-1">@danie.Nazwa</h5>
                                             @foreach (var ssd in Model.SymboleDoDania)
@@ -94,12 +99,12 @@
                                                     {
                                                         if (symbol.Id == ssd.SymbolId)
                                                         {
-                                                            <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                                                            <img src="~/images/@symbol.ObrazUrl" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                         }
                                                     }
                                                 }
                                             }
-                                            <p>Cena: @danie.Cena</p>
+                                            <p class="float-right">Cena: @danie.Cena</p>
                                             <script>
                                                 document.getElementById('@(danie.NormalizedNazwa+"heading")').onclick = function ()
                                                 {
@@ -148,8 +153,8 @@
                                 <a class="btn btn-link col-9 w-100" data-toggle="collapse" data-target="#@(danie.NormalizedNazwa+"collapse")" aria-expanded="true" aria-controls="@(danie.NormalizedNazwa+"collapse")">
 
                                     @*<form class="">
-                                        <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
-                                    </form>*@
+                                            <input type="submit" class="btn btn-sm btn-warning" formmethod="post" value="+" asp-action="AddDanieToZestaw" asp-controller="Menu" asp-route-zestawId="@Model.SelectedZestawId" asp-route-danieId="@danie.Id" />
+                                        </form>*@
                                     @*<img src="https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg" class="img-thumbnail rounded float-left" width="70vh" />*@
                                     <h5 class="mb-1">@danie.Nazwa</h5>
                                     @foreach (var ssd in Model.SymboleDoDania)
@@ -160,12 +165,12 @@
                                             {
                                                 if (symbol.Id == ssd.SymbolId)
                                                 {
-                                                    <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                                                    <img src="~/images/@symbol.ObrazUrl" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                 }
                                             }
                                         }
                                     }
-                                    <p>Cena: @danie.Cena</p>
+                                    <p class="float-right">Cena: @danie.Cena</p>
                                     <script>
                                                 document.getElementById('@(danie.NormalizedNazwa+"heading")').onclick = function ()
                                                 {
@@ -208,10 +213,11 @@
         {
             @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
             {
+
                 @if (Model.SelectedZamowienieId == zamowienie.Id)
                 {
-
-                    <a class="list-group-item list-group-item-success flex-column align-items-start mb-2" id="@zamowienie.NormalizedName" asp-action="SelectZamowienie" asp-route-zamowienieId="@zamowienie.Id">
+                    <!--Aktywne zamówienie-->
+                    <div class="list-group-item list-group-item-success flex-column align-items-start mb-2">
                         <div class="d-flex w-100 justify-content-between list-group">
                             <div class="row">
                                 @if (zamowienie.StatusZamowienie == SystemRestauracja.Data.StatusZamowienie.Dodawane)
@@ -232,8 +238,10 @@
                         {
                             if (zestaw.ZamowienieId == zamowienie.Id)
                             {
+
                                 if (zestaw.Id == Model.SelectedZestawId)
                                 {
+                                    <!--Aktywny zestaw-->
                                     <div class="list-group-item list-group-item-warning flex-column align-items-start mb-2">
                                         <div class="d-flex w-100 justify-content-between list-group">
                                             <div class="row">
@@ -275,7 +283,7 @@
                                                                         {
                                                                             if (symbol.Id == ssd.SymbolId)
                                                                             {
-                                                                                <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                                                                                <img src="~/images/@symbol.ObrazUrl" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                                             }
                                                                         }
                                                                     }
@@ -288,18 +296,29 @@
                                                                     {
                                                                         <i class="fas fa-fire" style="color:red"></i>
                                                                     }*@
+                                                                <small class="float-right">Cena: @danie.Cena</small>
                                                             </div>
-                                                            <small>Cena: @danie.Cena</small>
+
                                                         </div>
                                                     }
                                                 }
                                             }
                                         }
-                                        <p>Cena za zestaw: @zestaw.CenaZestawu</p>
+                                        @*<p class="float-right">Cena za zestaw: @zestaw.CenaZestawu</p>*@
+                                        <form id="notatka">
+                                            <div class="row">
+                                                <label>Uwagi i wskazania do zestawu(max. 75 znaków):</label>
+                                                <input type="text" class="form-control text-primary" maxlength="75" asp-for="Notatka" placeholder="@zestaw.NotatkaDoZestawu" />
+                                            </div>
+                                            <div class="row">
+                                                <input type="submit" formmethod="post" class="btn btn-dark" value="Zatwierdź" asp-action="AddNotatka" asp-route-zestawId="@zestaw.Id" />
+                                            </div>
+                                        </form>
                                     </div>
                                 }
                                 else
                                 {
+                                    <!--Nieaktywny zestaw-->
                                     <div method="post" class="list-group-item list-group-item-danger flex-column align-items-start mb-2" asp-controller="Menu" asp-action="SelectZestaw" asp-route-zestawId="@zestaw.Id">
                                         <div class="d-flex w-100 justify-content-between list-group">
                                             <div class="row">
@@ -343,7 +362,7 @@
                                                                         {
                                                                             if (symbol.Id == ssd.SymbolId)
                                                                             {
-                                                                                <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                                                                                <img src="~/images/@symbol.ObrazUrl" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                                             }
                                                                         }
                                                                     }
@@ -356,15 +375,16 @@
                                                                     {
                                                                         <i class="fas fa-fire" style="color:red"></i>
                                                                     }*@
+                                                                <p class="float-right">Cena: @danie.Cena</p>
                                                             </div>
-                                                            <p>Cena: @danie.Cena</p>
+
                                                         </div>
 
                                                     }
                                                 }
                                             }
                                         }
-
+                                        <small>Notatka: @zestaw.NotatkaDoZestawu</small>
                                     </div>
                                 }
                             }
@@ -379,11 +399,12 @@
                                 <button class="btn btn-outline-success col" asp-action="ConfirmZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Potwierdź zamówienie</button>
                             </form>
                         }
-                        <p>Cena za całe zamówienie: @zamowienie.CenaSuma</p>
-                    </a>
+                        <p class="float-right">Cena za całe zamówienie: @zamowienie.CenaSuma</p>
+                    </div>
                 }
                 else
                 {
+                    <!--Nieaktywne zamówienie-->
                     <a class="list-group-item list-group-item-dark flex-column align-items-start mb-2" id="@zamowienie.NormalizedName" asp-action="SelectZamowienie" asp-route-zamowienieId="@zamowienie.Id">
                         <div class="d-flex w-100 justify-content-between list-group">
                             <div class="row">
@@ -403,6 +424,7 @@
                         </div>
                         @foreach (var zestaw in Model.Zestawy)
                         {
+                            <!--nieaktywny zestaw-->
                             if (zestaw.ZamowienieId == zamowienie.Id)
                             {
                                 <div class="list-group-item list-group-item-danger flex-column align-items-start mb-2">
@@ -446,7 +468,7 @@
                                                                     {
                                                                         if (symbol.Id == ssd.SymbolId)
                                                                         {
-                                                                            <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                                                                            <img src="~/images/@symbol.ObrazUrl" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                                         }
                                                                     }
                                                                 }
@@ -459,8 +481,9 @@
                                                                 {
                                                                     <i class="fas fa-fire" style="color:red"></i>
                                                                 }*@
+                                                            <p>Cena: @danie.Cena</p>
                                                         </div>
-                                                        <p>Cena: @danie.Cena</p>
+
 
                                                     </div>
                                                 }
@@ -468,7 +491,8 @@
                                         }
                                     }
 
-                                    <p>Cena za zestaw: @zestaw.CenaZestawu</p>
+                                    @*<small class="float-right">Cena za zestaw: @zestaw.CenaZestawu</small>*@
+                                    <small>Notatka: @zestaw.NotatkaDoZestawu</small>
                                 </div>
                             }
                         }
@@ -483,12 +507,13 @@
                             </form>
                         }
                         <small></small>
-                        <p>Cena za całe zamówienie: @zamowienie.CenaSuma</p>
+                        <p class="float-right">Cena za całe zamówienie: @zamowienie.CenaSuma</p>
                     </a>
                 }
             }
             else
             {
+                <!--potwierdzone zamówienie-->
                 <div class="list-group-item list-group-item-primary flex-column align-items-start mb-2" id="@zamowienie.NormalizedName">
                     <div class="d-flex w-100 justify-content-between list-group">
                         <div class="row">
@@ -500,6 +525,7 @@
                     </div>
                     @foreach (var zestaw in Model.Zestawy)
                     {
+                        <!--potwierdzony zestaw-->
                         if (zestaw.ZamowienieId == zamowienie.Id)
                         {
                             <div method="post" class="list-group-item list-group-item-info flex-column align-items-start mb-2">
@@ -529,7 +555,7 @@
                                                                 {
                                                                     if (symbol.Id == ssd.SymbolId)
                                                                     {
-                                                                        <img src="~/images/@symbol.ImagePath" class="rounded-circle" height="32" width="32" asp-append-version="true" />
+                                                                        <img src="~/images/@symbol.ObrazUrl" class="rounded-circle" height="32" width="32" asp-append-version="true" />
                                                                     }
                                                                 }
                                                             }
@@ -542,14 +568,16 @@
                                                             {
                                                                 <i class="fas fa-fire" style="color:red"></i>
                                                             }*@
+                                                        <p class="float-right">Cena: @danie.Cena</p>
                                                     </div>
-                                                    <p>Cena: @danie.Cena</p>
+
                                                 </div>
 
                                             }
                                         }
                                     }
                                 }
+                                <small>Notatka: @zestaw.NotatkaDoZestawu</small>
 
                             </div>
 
@@ -562,7 +590,7 @@
                             <button class="btn btn-outline-success col" asp-action="CloseZamowienie" asp-controller="Menu" asp-route-zamowienieId="@zamowienie.Id">Zgłoś chęć zapłaty</button>
                         </form>
                     }
-                    <p>Cena za całe zamówienie: @zamowienie.CenaSuma</p>
+                    <p class="float-right">Cena za całe zamówienie: @zamowienie.CenaSuma</p>
                 </div>
             }
 

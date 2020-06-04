@@ -9,5 +9,9 @@ namespace SystemRestauracja.Models.Admin
     public class ShowSymbolsViewModel
     {
         public List<Symbol> Symbole { get; set; }
+
+        public int currentPage;
+        public int pageSize;
+        public int totalPages;
     }
 }

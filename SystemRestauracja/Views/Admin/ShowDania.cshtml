@@ -10,11 +10,16 @@
     </div>
 }
 
+@if (TempData["Success"] != null)
+{
+    <p class="alert alert-success" id="successMessage">@TempData["Success"]</p>
+}
+
 <div class="justify-content-center">
     <h2 class="text-dark text-center">Dania</h2>
 </div>
 
-<div class="container w-25 mt-2 mb-2">
+<div class="container w-50 mt-2 mb-2">
     <form asp-controller="Admin" asp-action="ShowDania" class="row">
         <input id="searchString" name="searchString" type="text" placeholder="Wyszukaj po nazwie" class="form-control col">
         <button type="submit" runat="server" class="btn btn-dark mr-5">Szukaj</button>
@@ -36,8 +41,8 @@
     </div>
 </div>
 @*<div style="overflow-y:scroll">*@
-<div class="" style="overflow-y:hidden; width:auto">
-    <form class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+<div class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+    <form class="">
 
         @foreach (var danie in Model.Dania)
         {
@@ -46,13 +51,14 @@
                     <div class="col w-25"></div>
                     <a class="col text-primary" role="button">@danie.Nazwa</a>
                     <label class="col text-primary">
-                        @foreach (var cat in Model.Kategorie)
+                        @*@foreach (var cat in Model.Kategorie)
                         {
                             if (cat.Id == danie.CategoryId)
                             {
                                 <div>@cat.Nazwa</div>
                             }
-                        }
+                        }*@
+                        <div>@danie.Category.Nazwa</div>
                     </label>
                     <label class="col text-primary">@danie.Cena</label>
                     @*<label class="col text-primary">@if(danie.CzyWeganskie) {<div>x</div>;}</label>
@@ -64,26 +70,27 @@
                     </label>
                     <label class="col text-secondary">@danie.CreateDate</label>
                     <a class="btn btn-outline-info col" asp-action="EditDanie" asp-controller="Admin" asp-route-danieId="@danie.Id">Edytuj</a>
-                    <a class="btn btn-outline-danger col" asp-action="DeleteDanie" asp-controller="Admin" asp-route-danieId="@danie.Id">Usuń</a>
+                    <a class="btn btn-outline-danger col" asp-action="DeleteDanie" asp-controller="Admin" asp-route-danieId="@danie.Id" asp-route-searchString="@ViewBag.SearchString">Usuń</a>
                 </div>
             </div>
             <hr />
         }
     </form>
+    <div>
+        <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
+    </div>
+
+    <div class="justify-content-center row">
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.totalPages; i++)
+            {
+                <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
+                    <a class="page-link" href="@Url.Action("ShowDania", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+                </li>
+            }
+        </ul>
+    </div>
 </div>
 
-<div>
-    <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
-</div>
 
-<div class="justify-content-center row">
-    <ul class="pagination">
-        @for (int i = 1; i <= Model.totalPages; i++)
-        {
-            <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
-                <a class="page-link" href="@Url.Action("ShowDania", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
-            </li>
-        }
-    </ul>
-</div>
 @*</div>*@

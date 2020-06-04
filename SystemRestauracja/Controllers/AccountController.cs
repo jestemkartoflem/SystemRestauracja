@@ -53,6 +53,7 @@ namespace SystemRestauracja.Controllers
             if (ModelState.IsValid)
             {
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, isPersistent: false, lockoutOnFailure: false);
+                
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -66,7 +67,7 @@ namespace SystemRestauracja.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Nieprawidłowy login lub hasło.");
                     return View(model);
                 }
             }

@@ -56,6 +56,7 @@ namespace SystemRestauracja.Controllers
             var kat = _context.Kategorie.FirstOrDefault(x => x.Nazwa == model.CatName);
             if (kat == null && ModelState.IsValid)
             {
+                var userManager = _serviceProvider.GetRequiredService<UserManager<UserAccount>>();
                 Kategoria k;
                 if (!model.HasParentCategory)
                 {
@@ -63,7 +64,7 @@ namespace SystemRestauracja.Controllers
                     {
                         Nazwa = model.CatName,
                         CreateDate = DateTime.Now,
-                        CreatedBy = "SYSTEM",
+                        CreatedBy = userManager.GetUserId(User),
                         //musimy usunac wszystkie spacje i polskie znaki
                         NormalizedName = Encoding.ASCII.GetString(Encoding.GetEncoding("Cyrillic").GetBytes(model.CatName.Replace(" ", ""))),
                         HasChildren = false,
@@ -77,7 +78,7 @@ namespace SystemRestauracja.Controllers
                     {
                         Nazwa = model.CatName,
                         CreateDate = DateTime.Now,
-                        CreatedBy = "SYSTEM",
+                        CreatedBy = userManager.GetUserId(User),
                         NormalizedName = Encoding.ASCII.GetString(Encoding.GetEncoding("Cyrillic").GetBytes(model.CatName.Replace(" ", ""))),
                         ParentCategoryId = model.SelectedCategoryId,
                         HasChildren = false,
@@ -85,6 +86,13 @@ namespace SystemRestauracja.Controllers
                     };
                     var parentCat = _context.Kategorie.FirstOrDefault(x => x.Id == k.ParentCategoryId);
                     parentCat.HasChildren = true;
+                    var daniaWithThatCategory = _context.Dania.Where(x => x.CategoryId == parentCat.Id).ToList();
+                    if(daniaWithThatCategory.Any())
+                    {
+                        ModelState.AddModelError("Error", "Kategoria z daniami nie może mieć podkategorii. Usuń wszystkie dania z tej kategorii i spróbuj ponownie.");
+                        model.ParentCategoryChoice = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList();
+                        return View(model);
+                    }
                     _context.Kategorie.Update(parentCat);
                 }
 
@@ -95,9 +103,18 @@ namespace SystemRestauracja.Controllers
             }
             else
             {
+                if (kat != null)
+                {
+                    ModelState.AddModelError("Error", "Istnieje już kategoria o takiej nazwie.");
+                }
+                else
+                {
+                    ModelState.AddModelError("Error", "Niepoprawne dane.");
+                }
                 model.ParentCategoryChoice = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList();
                 return View(model);
             }
+            TempData["Success"] = "Nowa kategoria dodana pomyślnie.";
             return RedirectToAction("Index");
         }
 
@@ -202,9 +219,6 @@ namespace SystemRestauracja.Controllers
                 }
                 if (catToDelete.HasChildren) //jezeli ma dzieci
                 {
-
-
-
                     var ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId == categoryId).ToList();
                     foreach (var cat in ChildrenCategories)
                     {
@@ -221,6 +235,7 @@ namespace SystemRestauracja.Controllers
                             return View("./ShowCategories", model);
                         }
                         //a jeśli nie ma to usun wszystkie podkategorie
+                        TempData["Success"] = "Kategoria i jej podkategorie usunięte pomyślnie.";
                         _context.Remove(_context.Kategorie.Find(cat.Id));
                     }
                     _context.Remove(_context.Kategorie.Find(categoryId));
@@ -228,6 +243,7 @@ namespace SystemRestauracja.Controllers
                 }
                 else
                 {
+                    TempData["Success"] = "Kategoria usunięta pomyślnie.";
                     _context.Remove(_context.Kategorie.Find(categoryId));
                     _context.SaveChanges();
 
@@ -239,14 +255,21 @@ namespace SystemRestauracja.Controllers
                         parentCat.HasChildren = (_context.Kategorie.FirstOrDefault(x => x.ParentCategoryId == parentCat.Id) != null);
                         _context.SaveChanges();
                     }
+
                 }
+
             }
+            else
+            {
+                TempData["Success"] = "Podana kategoria nie istnieje.";
+            }
+            
             return RedirectToAction("ShowCategories");
         }
 
         [HttpGet]
         [Route("Admin/EditCategory/{categoryId}")]
-        public IActionResult EditCategory(Guid categoryId, string returnUrl = null)
+        public IActionResult EditCategory(Guid categoryId)
         {
             var catToEdit = _context.Kategorie.FirstOrDefault(x => x.Id == categoryId);
             if (catToEdit != null)
@@ -258,49 +281,76 @@ namespace SystemRestauracja.Controllers
                     SelectedCategoryId = catToEdit.ParentCategoryId ?? Guid.Empty,
                     ParentCategoryChoice = _context.Kategorie.Where(x => x.ParentCategoryId == null && x.Id != categoryId).OrderBy(x => x.Nazwa).ToList(),
                 };
+                ViewData["Title"] = "Edytuj kategorię";
                 return View("./AddCategory", model);
             }
-            return View("./AddCategory");
+            CategoryViewModel model2 = new CategoryViewModel()
+            {
+                ParentCategoryChoice = _context.Kategorie.Where(x => x.ParentCategoryId == null && x.Id != categoryId).OrderBy(x => x.Nazwa).ToList()
+            };
+            ModelState.AddModelError("Error", "Kategoria nie istnieje");
+            return View("./AddCategory", model2);
         }
 
         [HttpPost]
         [Route("Admin/EditCategory/{categoryId}")]
-        public IActionResult EditCategory(CategoryViewModel model, Guid categoryId, string returnUrl = null)
+        public IActionResult EditCategory(CategoryViewModel model, Guid categoryId)
         {
 
             var catToEdit = _context.Kategorie.FirstOrDefault(x => x.Id == categoryId);
             if (catToEdit != null && ModelState.IsValid)
             {
+                var catByName = _context.Kategorie.FirstOrDefault(x => x.Nazwa == model.CatName);
+
+                if (catByName != null && (catByName.Id != catToEdit.Id))
+                {
+                    ModelState.AddModelError("Error", "Istnieje już kategoria o takiej nazwie.");
+                    model.ParentCategoryChoice = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList();
+                    model.CatName = catToEdit.Nazwa;
+                    return View("./AddCategory", model);
+                }
+
                 catToEdit.Nazwa = model.CatName;
+
                 if (model.HasParentCategory)
                 {
                     catToEdit.ParentCategoryId = model.SelectedCategoryId;
                     var parentCat = _context.Kategorie.FirstOrDefault(x => x.Id == model.SelectedCategoryId);
                     parentCat.HasChildren = true;
+                    var daniaWithThatCategory = _context.Dania.Where(x => x.CategoryId == parentCat.Id).ToList();
+                    if (daniaWithThatCategory.Any())
+                    {
+                        ModelState.AddModelError("Error", "Kategoria z daniami nie może mieć podkategorii. Usuń wszystkie dania z tej kategorii i spróbuj ponownie.");
+                        model.ParentCategoryChoice = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList();
+                        return View(model);
+                    }
+
                     _context.Kategorie.Update(parentCat);
                 }
                 else
                 {
-                    var parentCat = _context.Kategorie.FirstOrDefault(x => x.Id == catToEdit.ParentCategoryId);
-                    var childrencat = _context.Kategorie.Where(x => x.ParentCategoryId == parentCat.Id);
+                    //var parentCat = _context.Kategorie.FirstOrDefault(x => x.Id == catToEdit.ParentCategoryId);
+                    var childrencat = _context.Kategorie.Where(x => x.ParentCategoryId == catToEdit.Id).ToList();
                     bool stillHasChildren = false;
                     foreach (var ccat in childrencat)
                     {
-                        if (ccat.ParentCategoryId == parentCat.Id)
+                        if (ccat.ParentCategoryId == catToEdit.Id)
                         {
                             stillHasChildren = true;
                         }
                     }
-                    _context.Kategorie.Update(parentCat);
+                    _context.Kategorie.Update(catToEdit);
                     catToEdit.ParentCategoryId = null;
                 }
                 catToEdit.NormalizedName = Encoding.ASCII.GetString(Encoding.GetEncoding("Cyrillic").GetBytes(model.CatName.Replace(" ", "")));
                 _context.Kategorie.Update(catToEdit);
                 _context.SaveChanges();
+                TempData["Success"] = "Kategoria edytowana pomyślnie.";
                 return RedirectToAction("ShowCategories");
             }
             else
             {
+                ModelState.AddModelError("Error", "Niepoprawne dane.");
                 model.ParentCategoryChoice = _context.Kategorie.Where(x => x.ParentCategoryId == null).ToList();
                 return View("./AddCategory", model);
             }
@@ -327,13 +377,14 @@ namespace SystemRestauracja.Controllers
             var danie = _context.Dania.FirstOrDefault(x => x.Nazwa == model.DanieName);
             if (danie == null && ModelState.IsValid)
             {
+                var userManager = _serviceProvider.GetRequiredService<UserManager<UserAccount>>();
                 Danie d = new Danie()
                 {
                     Nazwa = model.DanieName,
                     NormalizedNazwa = Encoding.ASCII.GetString(Encoding.GetEncoding("Cyrillic").GetBytes(model.DanieName.Replace(" ", ""))),
                     OpisDania = model.Description,
                     CreateDate = DateTime.Now,
-                    CreatedBy = "SYSTEM",
+                    CreatedBy = userManager.GetUserId(User),
                     CategoryId = model.SelectedCategoryId,
                     //CzyOstre = model.IsSpicy,
                     //CzyWeganskie = model.IsVegan,
@@ -354,7 +405,7 @@ namespace SystemRestauracja.Controllers
                             SymbolId = guid,
                             DanieId = d.Id,
                             CreateDate = DateTime.Now,
-                            CreatedBy = "SYSTEM",
+                            CreatedBy = userManager.GetUserId(User),
                             Danie = d,
                             Symbol = _context.Symbole.FirstOrDefault(x => x.Id == guid)
                         };
@@ -366,11 +417,20 @@ namespace SystemRestauracja.Controllers
             }
             else
             {
+                if (danie != null)
+                {
+                    ModelState.AddModelError("Error", "Istnieje już danie o takiej nazwie.");
+                }
+                else
+                {
+                    ModelState.AddModelError("Error", "Niepoprawne dane.");
+                }
                 model.CategoryChoice = _context.Kategorie.Where(x => x.HasChildren == false).ToList();
                 ViewBag.Symbole = _context.Symbole.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nazwa }).ToList();
                 return View(model);
             }
-            return RedirectToAction("ShowDania");
+            TempData["Success"] = "Danie dodane pomyślnie.";
+            return RedirectToAction("Index");
         }
 
         //[HttpGet]
@@ -485,7 +545,7 @@ namespace SystemRestauracja.Controllers
 
         [HttpGet]
         [Route("Admin/DeleteDanie/{danieId}")]
-        public IActionResult DeleteDanie(Guid danieId, string returnUrl = null)
+        public IActionResult DeleteDanie(Guid danieId, string searchString, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
 
@@ -500,14 +560,19 @@ namespace SystemRestauracja.Controllers
                 }
                 _context.Remove(_context.Dania.Find(danieId));
                 _context.SaveChanges();
+                TempData["Success"] = "Danie usunięte pomyślnie.";
+            }
+            else
+            {
+                TempData["Success"] = "Podane danie nie istnieje.";
             }
 
-            return RedirectToAction("ShowDania");
+            return RedirectToAction("ShowDania", new { searchString = searchString });
         }
 
         [HttpGet]
         [Route("Admin/EditDanie/{danieId}")]
-        public IActionResult EditDanie(Guid danieId, string returnUrl = null)
+        public IActionResult EditDanie(Guid danieId)
         {
 
             var danieToEdit = _context.Dania.FirstOrDefault(x => x.Id == danieId);
@@ -527,20 +592,38 @@ namespace SystemRestauracja.Controllers
 
                 model.CategoryChoice = _context.Kategorie.Where(x => x.HasChildren == false).ToList();
                 ViewBag.Symbole = _context.Symbole.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nazwa }).ToList();
+                ViewData["Title"] = "Dodaj kategorię";
                 return View("./AddDanie", model);
             }
-            return View("./AddDanie");
+            DanieViewModel model2 = new DanieViewModel()
+            {
+                CategoryChoice = _context.Kategorie.Where(x => x.HasChildren == false).ToList()
+            };
+            ViewBag.Symbole = _context.Symbole.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nazwa }).ToList();
+            ModelState.AddModelError("Error", "Danie nie istnieje");
+            return View("./AddDanie", model2);
         }
 
         [HttpPost]
         [Route("Admin/EditDanie/{danieId}")]
-        public IActionResult EditDanie(DanieViewModel model, Guid danieId, string returnUrl = null)
+        public IActionResult EditDanie(DanieViewModel model, Guid danieId)
         {
 
 
             var danieToEdit = _context.Dania.FirstOrDefault(x => x.Id == danieId);
             if (danieToEdit != null && ModelState.IsValid)
             {
+
+                var danieByName = _context.Dania.FirstOrDefault(x => x.Nazwa == model.DanieName);
+
+                if (danieByName != null && (danieByName.Id != danieToEdit.Id))
+                {
+                    ModelState.AddModelError("Error", "Istnieje już danie o takiej nazwie.");
+                    model.CategoryChoice = _context.Kategorie.Where(x => x.HasChildren == false).ToList();
+                    ViewBag.Symbole = _context.Symbole.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nazwa }).ToList();
+                    return View("./AddDanie", model);
+                }
+
                 danieToEdit.Nazwa = model.DanieName;
                 danieToEdit.NormalizedNazwa = Encoding.ASCII.GetString(Encoding.GetEncoding("Cyrillic").GetBytes(model.DanieName.Replace(" ", "")));
                 danieToEdit.OpisDania = model.Description;
@@ -561,6 +644,7 @@ namespace SystemRestauracja.Controllers
 
                 if (model.WybraneIdSymboli != null)
                 {
+                    var userManager = _serviceProvider.GetRequiredService<UserManager<UserAccount>>();
                     foreach (var guid in model.WybraneIdSymboli)
                     {
                         var symbolDoDania = new SymbolDoDania()
@@ -568,7 +652,7 @@ namespace SystemRestauracja.Controllers
                             SymbolId = guid,
                             DanieId = danieToEdit.Id,
                             CreateDate = DateTime.Now,
-                            CreatedBy = "SYSTEM",
+                            CreatedBy = userManager.GetUserId(User),
                             Danie = danieToEdit,
                             Symbol = _context.Symbole.FirstOrDefault(x => x.Id == guid)
                         };
@@ -581,10 +665,11 @@ namespace SystemRestauracja.Controllers
                         _context.SaveChanges();
                     }
                 }
-
+                TempData["Success"] = "Danie edytowane pomyślnie.";
                 return RedirectToAction("ShowDania");
             }
             //cos poszlo nie tak, odswiez strone
+            ModelState.AddModelError("Error", "Niepoprawne dane.");
             model.CategoryChoice = _context.Kategorie.Where(x => x.HasChildren == false).ToList();
             ViewBag.Symbole = _context.Symbole.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Nazwa }).ToList();
             return View("./AddDanie", model);
@@ -631,14 +716,15 @@ namespace SystemRestauracja.Controllers
                 }
                 else
                 {
-                    user.IsActive = "true";
-                    _context.Users.Update(user);
-                    _context.SaveChanges();
+                    ModelState.AddModelError("Error", "Użytkownik istnieje już w bazie danych.");
+                    return await Task.Run(() => RedirectToAction("Index"));
 
                 }
 
+                TempData["Success"] = "Użytkownik dodany pomyślnie.";
                 return await Task.Run(() => RedirectToAction("Index"));
             }
+            ModelState.AddModelError("Error", "Niepoprawne dane.");
             //coś poszło nie tak, odśwież stronę
             return await Task.Run(() => View("./AddUser"));
         }
@@ -717,14 +803,20 @@ namespace SystemRestauracja.Controllers
                 userToDelete.IsActive = "false";
                 _context.Users.Update(userToDelete);
                 _context.SaveChanges();
+                TempData["Success"] = "Użytkownik usunięty pomyślnie.";
+            }
+            else
+            {
+                TempData["Success"] = "Użytkownik nie istnieje";
             }
 
+            
             return View();
         }
 
         [HttpGet]
         [Route("Admin/EditUser/{userId}")]
-        public async Task<IActionResult> EditUserAsync(string userId, string returnUrl = null)
+        public async Task<IActionResult> EditUserAsync(string userId)
         {
 
             var UserManager = _serviceProvider.GetRequiredService<UserManager<UserAccount>>();
@@ -737,14 +829,16 @@ namespace SystemRestauracja.Controllers
                     Status = userToEdit.StatusStolika,
                     Password = ""
                 };
+                ViewData["Title"] = "Edytuj użytkownika";
                 return View("./AddUser", model);
             }
+            ModelState.AddModelError("Error", "Użytkownik nie istnieje");
             return View("./AddUser");
         }
 
         [HttpPost]
         [Route("Admin/EditUser/{userId}")]
-        public async Task<IActionResult> EditUserAsync(UserViewModel model, string userId, string returnUrl = null)
+        public async Task<IActionResult> EditUserAsync(UserViewModel model, string userId)
         {
 
             var UserManager = _serviceProvider.GetRequiredService<UserManager<UserAccount>>();
@@ -754,14 +848,20 @@ namespace SystemRestauracja.Controllers
                 userToEdit.StatusStolika = StatusStolik.Pusty;
                 userToEdit.UserName = model.UserName;
                 userToEdit.PasswordHash = UserManager.PasswordHasher.HashPassword(userToEdit, model.Password);
+                var UserByName = _context.Users.FirstOrDefault(x => x.UserName == model.UserName);
+
+                if (UserByName != null && (UserByName.Id != userToEdit.Id))
+                {
+                    ModelState.AddModelError("Error", "Istnieje już użytkownik o takiej nazwie.");
+                    return View("./AddUser", model);
+                }
 
                 await UserManager.UpdateAsync(userToEdit);
-                ShowUsersViewModel model2 = new ShowUsersViewModel()
-                {
-                    Users = _context.Users.Where(x => x.IsActive != "false").ToList()
-                };
-                return View("./ShowUsers", model2);
+
+                TempData["Success"] = "Użytkownik edytowany pomyślnie.";
+                return RedirectToAction("ShowUsers");
             }
+            ModelState.AddModelError("Error", "Niepoprawne dane.");
             //cos poszlo nie tak, odswiez strone
             return View("./AddUser", model);
         }
@@ -945,6 +1045,7 @@ namespace SystemRestauracja.Controllers
                 string uniqueFileName = null;
                 Symbol s = null;
                 var symbol = _context.Symbole.FirstOrDefault(x => x.Nazwa == model.SymbolName);
+
                 if (symbol == null)
                 {
                     s = new Symbol()
@@ -958,7 +1059,9 @@ namespace SystemRestauracja.Controllers
                 }
                 else
                 {
-                    s = symbol;
+                    ModelState.AddModelError("Error", "Istnieje już danie o takiej nazwie.");
+                    ViewData["Edit"] = "true";
+                    return View("./AddSymbol", model);
                 }
                 if (model.SymbolImage != null && model.SymbolImage.IsImage())
                 {
@@ -981,14 +1084,17 @@ namespace SystemRestauracja.Controllers
 
                     }
                 }
-                s.ImagePath = uniqueFileName;
+                s.ObrazUrl = uniqueFileName;
                 _context.Symbole.Update(s);
                 _context.SaveChanges();
             }
             else
             {
+                ModelState.AddModelError("Error", "Niepoprawne dane.");
                 return View();
             }
+
+            TempData["Success"] = "Pomyślnie dodano symbol.";
             return RedirectToAction("Index");
         }
 
@@ -1005,10 +1111,13 @@ namespace SystemRestauracja.Controllers
                 {
                     //SymbolColor = symbolToEdit.Color,
                     //SymbolFontId = symbolToEdit.FontId,
-                    SymbolName = symbolToEdit.Nazwa
+                    SymbolName = symbolToEdit.Nazwa,
                 };
+                ViewData["Edit"] = "true";
                 return View("./AddSymbol", model);
             }
+            ModelState.AddModelError("Error", "Symbol nie istnieje");
+
             return View("./AddSymbol");
         }
 
@@ -1018,62 +1127,75 @@ namespace SystemRestauracja.Controllers
         {
             if (ModelState.IsValid)
             {
-                var symbol = _context.Symbole.FirstOrDefault(x => x.Id == symbolId);
-                if (symbol != null)
+                var symbolToEdit = _context.Symbole.FirstOrDefault(x => x.Id == symbolId);
+
+                if (symbolToEdit != null)
                 {
-                    symbol.Nazwa = model.SymbolName;
+
+                    var symbolByName = _context.Symbole.FirstOrDefault(x => x.Nazwa == model.SymbolName);
+
+                    if (symbolByName != null && (symbolByName.Id != symbolToEdit.Id))
+                    {
+                        ModelState.AddModelError("Error", "Istnieje już symbol o takiej nazwie.");
+                        ViewData["Edit"] = "true";
+                        return View("./AddSymbol", model);
+                    }
+                    symbolToEdit.Nazwa = model.SymbolName;
                     //symbol.Color = model.SymbolColor;
                     //symbol.FontId = model.SymbolFontId;
-                    _context.Symbole.Update(symbol);
+                    _context.Symbole.Update(symbolToEdit);
                     _context.SaveChanges();
-                    return RedirectToAction("ShowSymbols");
-                }
 
-                //var files = HttpContext.Request.Form.Files;
-                string uniqueFileName = null;
-                //if (symbol == null)
-                //{
-                //    s = new Symbol()
-                //    {
-                //        Nazwa = model.SymbolName,
-                //        //FontId = model.SymbolFontId,
-                //        //Color = model.SymbolColor
-                //    };
-                //    _context.Symbole.Add(s);
-                //    _context.SaveChanges();
-                //}
-                //else
-                //{
-                if (model.SymbolImage != null && model.SymbolImage.IsImage())
-                {
-                    try
+
+                    //var files = HttpContext.Request.Form.Files;
+                    string uniqueFileName = null;
+                    //if (symbol == null)
+                    //{
+                    //    s = new Symbol()
+                    //    {
+                    //        Nazwa = model.SymbolName,
+                    //        //FontId = model.SymbolFontId,
+                    //        //Color = model.SymbolColor
+                    //    };
+                    //    _context.Symbole.Add(s);
+                    //    _context.SaveChanges();
+                    //}
+                    //else
+                    //{
+                    if (model.SymbolImage != null && model.SymbolImage.IsImage())
                     {
-                        string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
-                        uniqueFileName = symbol.Id.ToString() + "_" + model.SymbolImage.FileName;
-                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                        //using (var fileStream = new FileStream(filePath, FileMode.Create))
-                        //{
-                        //    model.SymbolImage.CopyTo(fileStream);
-                        //}
-                        var filestream = new FileStream(filePath, FileMode.Create);
+                        try
+                        {
+                            string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
+                            uniqueFileName = symbolToEdit.Id.ToString() + "_" + model.SymbolImage.FileName;
+                            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                            //using (var fileStream = new FileStream(filePath, FileMode.Create))
+                            //{
+                            //    model.SymbolImage.CopyTo(fileStream);
+                            //}
+                            var filestream = new FileStream(filePath, FileMode.Create);
 
-                        model.SymbolImage.CopyTo(filestream);
-                        filestream.Close();
-                    }
-                    catch (Exception e)
-                    {
+                            model.SymbolImage.CopyTo(filestream);
+                            filestream.Close();
+                        }
+                        catch (Exception e)
+                        {
 
+                        }
                     }
+                    symbolToEdit.ObrazUrl = uniqueFileName;
+                    _context.Symbole.Update(symbolToEdit);
+                    _context.SaveChanges();
                 }
-                symbol.ImagePath = uniqueFileName;
-                _context.Symbole.Update(symbol);
-                _context.SaveChanges();
             }
             else
             {
+                ModelState.AddModelError("Error", "Niepoprawne dane.");
+                ViewData["Edit"] = "true";
                 return View("./AddSymbol", model);
             }
-            return RedirectToAction("Index");
+            TempData["Success"] = "Pomyślnie edytowano symbol.";
+            return RedirectToAction("ShowSymbols");
         }
 
         [HttpGet]
@@ -1093,26 +1215,57 @@ namespace SystemRestauracja.Controllers
                     }
                 }
                 string uploadsFolder = Path.Combine(_hostingEnvironment.WebRootPath, "images");
-                string filePath = Path.Combine(uploadsFolder, symbolToDelete.ImagePath);
+                string filePath = Path.Combine(uploadsFolder, symbolToDelete.ObrazUrl);
                 FileInfo file = new FileInfo(filePath);
                 if (file.Exists)
                 {
                     file.Delete();
                 }
                 _context.SaveChanges();
+                TempData["Success"] = "Pomyślnie usunięto symbol.";
             }
-
+            else
+            {
+                TempData["Success"] = "Symbol nie istnieje.";
+            }
             return RedirectToAction("ShowSymbols");
         }
 
         [HttpGet]
-        public IActionResult ShowSymbols()
+        public IActionResult ShowSymbols(string sortOrder, string searchString, string currentFilter, int page = 1, int pageSize = 7)
         {
-            ShowSymbolsViewModel model = new ShowSymbolsViewModel()
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.SearchString = searchString;
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            decimal total = ((decimal)_context.Symbole.Count() / (decimal)pageSize);
+            ShowSymbolsViewModel model;
+            switch (sortOrder)
             {
-                Symbole = _context.Symbole.ToList(),
-            };
+                case "name_desc":
+                    model = new ShowSymbolsViewModel()
+                    {
+                        Symbole = _context.Symbole.OrderByDescending(x=>x.Nazwa).ToList(),
+                    };
+                    break;
+                default:
+                    model = new ShowSymbolsViewModel()
+                    {
+                        Symbole = _context.Symbole.OrderBy(x => x.Nazwa).ToList(),
+                    };
+                    break;
+            }
+
+            model.currentPage = page;
+            model.pageSize = pageSize;
+            model.totalPages = (int)Math.Ceiling(total);
+
             return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult GenerateReportDania()
+        {
+            return View();
         }
     }
 }

@@ -15,5 +15,6 @@ namespace SystemRestauracja.Data
         public Guid ZamowienieId { get; set; }
         public UserAccount Zamawiajacy { get; set; }
         public string ZamawiajacyId { get; set; }
+        public string NotatkaDoZestawu { get; set; }
     }
 }

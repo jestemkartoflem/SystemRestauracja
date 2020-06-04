@@ -10,11 +10,16 @@
     </div>
 }
 
+@if (TempData["Success"] != null)
+{
+    <p class="alert alert-success" id="successMessage">@TempData["Success"]</p>
+}
+
 <div class="justify-content-center">
     <h2 class="text-dark text-center">Użytkownicy</h2>
 </div>
 
-<div class="container w-25 mt-2 mb-2">
+<div class="container w-50 mt-2 mb-2">
     <form asp-controller="Admin" asp-action="ShowUsers" class="row">
         <input id="searchString" name="searchString" type="text" placeholder="Wyszukaj po nazwie" class="form-control col">
         <button type="submit" runat="server" class="btn btn-dark mr-5">Szukaj</button>
@@ -29,8 +34,8 @@
         <label class="col">Usuwanie</label>
     </div>
 </div>
-<div class="" style="overflow-y:hidden; width:auto">
-    <form class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+<div class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+    <form >
         @foreach (var user in Model.Users)
         {
             <div>
@@ -51,19 +56,20 @@
             <hr />
         }
     </form>
+    <div>
+        <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
+    </div>
+
+    <div class="justify-content-center row">
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.totalPages; i++)
+            {
+                <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
+                    <a class="page-link" href="@Url.Action("ShowUsers", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+                </li>
+            }
+        </ul>
+    </div>
 </div>
 
-<div>
-    <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
-</div>
 
-<div class="justify-content-center row">
-    <ul class="pagination">
-        @for (int i = 1; i <= Model.totalPages; i++)
-        {
-            <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
-                <a class="page-link" href="@Url.Action("ShowCategories", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
-            </li>
-        }
-    </ul>
-</div>

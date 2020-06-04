@@ -40,3 +40,4 @@ D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcorea
 D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\Razor\Views\Admin\ShowPending.g.cshtml.cs
 D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\Razor\Views\Admin\ShowSymbols.g.cshtml.cs
 D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\Razor\Views\Admin\AddSymbol.g.cshtml.cs
+D:\PracaInzynierska\Final\SystemRestauracja\SystemRestauracja\obj\Debug\netcoreapp2.2\Razor\Views\Admin\DaniaReport.g.cshtml.cs

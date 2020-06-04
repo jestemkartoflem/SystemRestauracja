@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SystemRestauracja.Data;
 
 namespace SystemRestauracja.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    partial class RestaurantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200530113807_NotatkaDoZestawu")]
+    partial class NotatkaDoZestawu
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,6 +178,8 @@ namespace SystemRestauracja.Migrations
 
                     b.Property<DateTime?>("DeleteDate");
 
+                    b.Property<string>("Notatka");
+
                     b.Property<string>("UserId");
 
                     b.Property<Guid>("ZestawId");
@@ -232,9 +236,9 @@ namespace SystemRestauracja.Migrations
 
                     b.Property<DateTime?>("DeleteDate");
 
-                    b.Property<string>("Nazwa");
+                    b.Property<string>("ImagePath");
 
-                    b.Property<string>("ObrazUrl");
+                    b.Property<string>("Nazwa");
 
                     b.HasKey("Id");
 

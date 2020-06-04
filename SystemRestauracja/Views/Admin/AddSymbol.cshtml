@@ -3,14 +3,26 @@
     ViewData["Title"] = "AddSymbol";
 }
 
-<h1>AddSymbol</h1>
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+{
+    <div class="alert alert-danger">
+        @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+    </div>
+}
+
+<h1>Dodaj symbol</h1>
 
 
 <form asp-action="AddSymbol" class="ml-5 w-75" id="form" enctype="multipart/form-data">
     <div class="row">
         <p>Nazwa symbolu</p>
-        <input type="text" class="form-control col text-primary" asp-for="SymbolName" placeholder="Nazwa symbolu" />
-        <span asp-validation-for="SymbolName" class="text-danger"></span>
+        <p class="col">
+            <input type="text" class="form-control col text-primary" asp-for="SymbolName" placeholder="Nazwa symbolu" />
+        </p>
+        <p class="col">
+            <span asp-validation-for="SymbolName" class="text-danger"></span>
+
+        </p>
     </div>
     @*<div class="row">
             <p>Id symbolu(font-awesome)</p>
@@ -18,8 +30,11 @@
         </div>*@
     <div class="row custom-file">
         <p>Obrazek symbolu</p>
-        <input asp-for="SymbolImage" id="customFile">
-        <span asp-validation-for="SymbolImage" class="text-danger"></span>
+        <input class="form-control-file" asp-for="SymbolImage" id="customFile">
+
+        <div>
+            <span asp-validation-for="SymbolImage" class="text-danger"></span>
+        </div>
     </div>
     @*<div class="form-group">
             <label asp-for="SymbolImage" class="control-label"></label>
@@ -34,7 +49,14 @@
             <input type="text" class="form-control col text-primary" asp-for="SymbolColor" placeholder="kolor" />
         </div>*@
     <div class="row">
-        <input type="submit" formmethod="post" class="btn btn-dark" value="Zatwierdź" />
+        @if (ViewData["Edit"] == "true")
+        {
+            <input type="submit" formmethod="post" asp-action="EditSymbol" class="btn btn-dark" value="Zatwierdź" />
+        }
+        else
+        {
+            <input type="submit" formmethod="post" class="btn btn-dark" value="Zatwierdź" />
+        }
     </div>
 </form>
 

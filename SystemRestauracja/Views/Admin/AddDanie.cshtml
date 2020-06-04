@@ -1,7 +1,18 @@
 ﻿@model SystemRestauracja.Models.Admin.DanieViewModel
 @{
-    ViewData["Title"] = "Dodaj Danie";
+    @if (ViewData["Title"] == null)
+    {
+        ViewData["Title"] = "Dodaj danie";
+    }
 }
+
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+{
+    <div class="alert alert-danger">
+        @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+    </div>
+}
+
 <h1>@ViewData["Title"]</h1>
 
 
@@ -14,7 +25,9 @@
 <form class="ml-5 w-75" id="form">
     <div class="row">
         <input type="text" class="form-control col text-primary" asp-for="DanieName" placeholder="Nazwa potrawy" />
-        <span asp-validation-for="DanieName" class="text-danger"></span>
+        <div>
+            <span asp-validation-for="DanieName" class="text-danger"></span>
+        </div>
     </div>
     <div class="row">
         <textarea asp-for="Description" class="form-control col text-primary" placeholder="Krótki opis"></textarea>
@@ -22,12 +35,19 @@
     <div class="row">
         <label>Wybór kategorii dania</label>
         <select class="form-control" asp-for="SelectedCategoryId" asp-items="@(new SelectList(Model.CategoryChoice, "Id", "Nazwa"))"></select>
-        <span asp-validation-for="SelectedCategoryId" class="text-danger"></span>
+
+        <div>
+            <span asp-validation-for="SelectedCategoryId" class="text-danger"></span>
+        </div>
     </div>
     <div class="row w-25">
         <label class="mr-2">Cena</label><br />
         <input type="number" name="price" min="0" step="0.01" class="form-control w-25 col text-primary" asp-for="Price" oninvalid="this.setCustomValidity('Proszę wprowadzić poprawną cenę')" oninput="this.setCustomValidity('')" />
-        <span asp-validation-for="Price" class="text-danger"></span>
+
+        <div>
+            <span asp-validation-for="Price" class="text-danger"></span>
+
+        </div>
     </div>
     <label class="mr-2">Symbole</label>
     <div class="row">
