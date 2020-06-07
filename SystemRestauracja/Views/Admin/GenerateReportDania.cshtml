@@ -1,0 +1,124 @@
+﻿@model SystemRestauracja.Models.Admin.DaniaReportViewModel
+@{
+    ViewData["Title"] = "Raport Dań";
+}
+
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+{
+    <div class="alert alert-danger">
+        @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <p class="alert alert-success" id="successMessage">@TempData["Success"]</p>
+}
+
+<div>
+    <h2>Raport dań</h2>
+    @if (Model.DaniaList == null)
+    {
+
+        <div class="container w-50 mt-2 mb-2">
+            <form asp-controller="Admin" asp-action="GenerateReportDania" class="row">
+                <div>
+                    <label>Data od:</label>
+                    <input type="date" asp-for="DataOd" placeholder="Data początkowa" class="form-control col" value="@DateTime.Now">
+                </div>
+                <div>
+                    <label>Data do:</label>
+                    <input type="date" asp-for="DataDo" placeholder="Data końcowa" class="form-control col" value="@DateTime.Now">
+                </div>
+                <button type="submit" formmethod="post" class="btn btn-dark mr-5">Szukaj</button>
+            </form>
+        </div>
+        @*<form asp-action="GenerateReportDania">
+                <label class="col">Podaj datę początkową i końcową</label>
+                <div class="row w-50">
+                    <div class="col">
+                        <label>Data od</label>
+                        <input class="form-control" type="date" asp-for="DataOd" placeholder="Data początkowa" value="@DateTime.Now" />
+                    </div>
+                    <div class="col">
+                        <label>Data do</label>
+                        <input class="form-control col" type="date" asp-for="DataDo" placeholder="Data końcowa" value="@DateTime.Now" />
+                    </div>
+                </div>
+                <input type="submit" formmethod="post" class="btn btn-info" value="Zatwierdź" />
+            </form>*@
+    }
+    else
+    {
+        <div class="container w-50 mt-2 mb-2">
+            <div class="row">
+                <label class="col text-primary">Data początkowa: @Model.DataOd.ToShortDateString()</label>
+                <label class="col text-primary">Data końcowa: @Model.DataDo.ToShortDateString()</label>
+            </div>
+        </div>
+    }
+
+    <div class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+        @if (Model.DaniaList != null)
+        {
+            <div class="">
+                <div class="row">
+                    <label class="col w-25"></label>
+                    <label class="col">Nazwa</label>
+                    <label class="col">Kategoria</label>
+                    <label class="col">Cena</label>
+                    <label class="col">Ilość zamówień</label>
+                    <label class="col">Czy opublikowane</label>
+                    <label class="col">Data utworzenia</label>
+                </div>
+            </div>
+
+            <div class="container-fluid list-group col">
+                <div>
+                    @foreach (var element in Model.DaniaList)
+                    {
+                        <div>
+                            <div class="row">
+                                <div class="col w-25"></div>
+                                <a class="col text-primary">@element.Nazwa</a>
+                                <label class="col text-primary">
+                                    <div>@element.NazwaKategorii</div>
+                                </label>
+                                <label class="col text-primary">@element.Cena</label>
+                                <label class="col text-primary">@element.IloscZamowien</label>
+                                <label class="col text-primary">
+                                    @if (element.CzyUpublicznione)
+                                    {<div>x</div>;
+                                    }
+                                </label>
+                                <label class="col text-secondary">@element.DataDodania</label>
+                            </div>
+                        </div>
+                        <hr />
+                        @*<div class="col w-25"></div>
+                            <label class="col text-primary">@element.Nazwa</label>
+                            <label class="col text-primary">@element.NazwaKategorii</label>
+                            <label class="col text-primary">@element.IloscZamowien</label>
+                            <label class="col text-primary">@element.CzyUpublicznione</label>
+                            <label class="col text-primary">@element.DataDodania</label>*@
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    @*<div>
+            <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
+        </div>
+
+        <div class="justify-content-center row">
+            <ul class="pagination">
+                @for (int i = 1; i <= Model.totalPages; i++)
+                {
+                    <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
+                        <input type="submit" formaction="post" class="page-link" value="@id" />
+                    </li>
+                }
+            </ul>
+        </div>*@
+
+</div>

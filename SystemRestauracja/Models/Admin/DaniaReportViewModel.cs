@@ -9,10 +9,14 @@ namespace SystemRestauracja.Models.Admin
 {
     public class DaniaReportViewModel
     {
-        public List<Danie> DaniaList { get; set; }
+        public List<DanieReportElement> DaniaList { get; set; }
         [Required(ErrorMessage = "Wymagane pole")]
         public DateTime DataOd { get; set; }
         [Required(ErrorMessage = "Wymagane pole")]
         public DateTime DataDo { get; set; }
+        //public int currentPage { get; set; }
+        //public int pageSize { get; set; }
+        //public int totalPages { get; set; }
+
     }
 }

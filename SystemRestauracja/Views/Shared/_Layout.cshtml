@@ -42,6 +42,7 @@
 </head>
 
 <body class="overflow-hidden">
+    <div class="hideAll" id="hideAll">&nbsp;</div>
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
             <button class="btn btn-outline-info" id="menu-toggle">
@@ -59,7 +60,7 @@
             </button>
         </nav>
     </header>
-    <div class="d-flex toggled" id="wrapper" style="position:fixed;">
+    <div class="toggled d-flex" id="wrapper" style="position:fixed;">
 
         <!-- Sidebar href="#dania_glowne" -->
         <div class="bg-light border-right" id="sidebar-wrapper">
@@ -137,12 +138,19 @@
     </div>
 
     <script>
+        document.getElementById("hideAll").style.display = "block";
+        window.onload = function () { document.getElementById("hideAll").style.display = "none"; }
+    </script>
+    <script>
         $("#menu-toggle").click(function (e) {
             e.preventDefault();
             $("#wrapper").toggleClass("toggled");
         });
 
+        
+
     </script>
+
     <script>
         var interval = setInterval(timestamphome, 1000);
 
@@ -187,7 +195,6 @@
             //});
         });
     </script>
-
     @RenderSection("Scripts", required: false)
 </body>
 </html>

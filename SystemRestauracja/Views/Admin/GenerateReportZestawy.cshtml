@@ -1,6 +1,6 @@
 ﻿@model SystemRestauracja.Models.Admin.ShowPendingViewModel
 @{
-    ViewData["Title"] = "Oczekujące zestawy";
+    ViewData["Title"] = "Raport wydanych zestawów";
 }
 
 @if (TempData["Success"] != null)
@@ -8,21 +8,35 @@
     <p class="alert alert-success" id="successMessage">@TempData["Success"]</p>
 }
 
-<h1>Oczekujące zamówienia</h1>
+<h1>@ViewData["Title"]</h1>
+
+<div class="container w-50 mt-2 mb-2">
+    <form asp-controller="Admin" asp-action="GenerateReportZestawy" class="row">
+        <div>
+            <label>Data od:</label>
+            <input id="dataOd" name="dataOd" type="date" placeholder="Data od" class="form-control col" value="@DateTime.Now">
+        </div>
+
+        <div>
+            <label>Data do:</label>
+            <input id="dataDo" name="dataDo" type="date" placeholder="Data do" class="form-control col" value="@DateTime.Now">
+        </div>
+        <button type="submit" runat="server" formmethod="get" class="btn btn-dark mr-5">Szukaj</button>
+    </form>
+</div>
+
 <div class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
     <div>
         <table class="table">
             <thead>
                 <tr>
                     <th scope="col">Nr Zestawu</th>
-                    <th scope="col">@Html.ActionLink("Cena zestawu", "ShowPending", new { sortOrder = ViewBag.PriceSortParm })</th>
-                    <th scope="col">Status zestawu</th>
-                    <th scope="col">@Html.ActionLink("Użytkownik", "ShowPending", new { sortOrder = ViewBag.TableSortParm })</th>
+                    <th scope="col">@Html.ActionLink("Cena zestawu", "GenerateReportZestawy", new { sortOrder = ViewBag.PriceSortParm, dataOd = ViewBag.CurrentDataOd, dataDo = ViewBag.CurrentDataDo })</th>
+                    <th scope="col">@Html.ActionLink("Użytkownik", "GenerateReportZestawy", new { sortOrder = ViewBag.TableSortParm, dataOd = ViewBag.CurrentDataOd, dataDo = ViewBag.CurrentDataDo })</th>
                     <th scope="col">Potrawy</th>
-                    <th scope="col">@Html.ActionLink("Data utworzenia", "ShowPending", new { sortOrder = ViewBag.DateSortParm })</th>
-                    <th scope="col">Nr Zamówienia</th>
+                    <th scope="col">@Html.ActionLink("Data utworzenia", "GenerateReportZestawy", new { sortOrder = ViewBag.DateSortParm, dataOd = ViewBag.CurrentDataOd, dataDo = ViewBag.CurrentDataDo })</th>
+                    <th scope="col">Data zamknięcia</th>
                     <th scope="col">Notatki</th>
-                    <th scope="col">Zamknij</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,9 +48,6 @@
                         </th>
                         <td>
                             @zestaw.CenaZestawu
-                        </td>
-                        <td>
-                            @zestaw.StatusZestawu
                         </td>
                         <td>
                             @foreach (var user in Model.Uzytkownicy)
@@ -73,28 +84,17 @@
                             @zestaw.CreateDate
                         </td>
                         <td>
-                            @foreach(var zamowienie in Model.Zamowienia)
-                            {
-                                if(zamowienie.Id==zestaw.ZamowienieId)
-                                {
-                                    <div>@zamowienie.ZamowienieNr</div>
-                                }
-                            }
+                            @zestaw.DeleteDate
                         </td>
                         <td style="width:25%">
                             @if (zestaw.NotatkaDoZestawu != null)
                             {
-                                @zestaw.NotatkaDoZestawu
+                                <p>@zestaw.NotatkaDoZestawu</p>
                             }
                             else
                             {
                                 <p>Brak notatki</p>
                             }
-                        </td>
-                        <td>
-                            <form class="col">
-                                <button class="btn btn-sm btn-outline-dark" asp-action="CloseZestaw" asp-controller="Admin" asp-route-zestawId="@zestaw.Id">Zamknij zestaw</button>
-                            </form>
                         </td>
                     </tr>
                 }
@@ -110,7 +110,7 @@
             @for (int i = 1; i <= Model.totalPages; i++)
             {
                 <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
-                    <a class="page-link" href="@Url.Action("ShowPending", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+                    <a class="page-link" href="@Url.Action("GenerateReportZestawy", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter, currentDataOd=ViewBag.CurrentDataOd, currentDataDo=ViewBag.CurrentDataDo})">@i</a>
                 </li>
             }
         </ul>

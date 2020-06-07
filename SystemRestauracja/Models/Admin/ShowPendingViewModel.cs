@@ -11,6 +11,7 @@ namespace SystemRestauracja.Models.Admin
         //public List<Zamowienie> Zamowienia { get; set; }
         public List<Zestaw> Zestawy { get; set; }
         public List<DanieDoZestawu> DaniaDoZestawow { get; set; }
+        public List<Zamowienie> Zamowienia { get; set; }
         public List<Danie> Dania { get; set; }
         public List<UserAccount> Uzytkownicy { get; set; }
 

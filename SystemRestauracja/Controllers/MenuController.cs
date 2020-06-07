@@ -348,10 +348,14 @@ namespace SystemRestauracja.Controllers
                         }
                     }
                 }
-                zamowienie.StatusZamowienie = StatusZamowienie.Oplacane;
-                zamowienie.DeleteDate = DateTime.Now;
-                _context.Zamowienia.Update(zamowienie);
-                _context.SaveChanges();
+                if (zamowienie.StatusZamowienie != StatusZamowienie.Wydane)
+                {
+                    zamowienie.StatusZamowienie = StatusZamowienie.Oplacane;
+
+                    zamowienie.DeleteDate = DateTime.Now;
+                    _context.Zamowienia.Update(zamowienie);
+                    _context.SaveChanges();
+                }
             }
 
             return RedirectToAction("OrderMenu");
@@ -474,6 +478,24 @@ namespace SystemRestauracja.Controllers
             var zestaw = _context.Zestawy.FirstOrDefault(x => x.Id == zestawId);
             if(model.Notatka!=null)
             {
+                string s = model.Notatka;
+                int i = 0;
+                foreach(char c in s) //prosta pętla dodająca puste miejsca w notatce w przypadku braku pustych znaków
+                {
+                    if(Char.IsWhiteSpace(c))
+                    {
+                        i = 0;
+                    }
+                    else
+                    {
+                        i++;
+                        if(i>14)
+                        {
+                            s.Insert(i, " ");
+                        }
+                    }
+                }
+                model.Notatka = s;
                 zestaw.NotatkaDoZestawu = model.Notatka;
                 _context.Zestawy.Update(zestaw);
                 _context.SaveChanges();

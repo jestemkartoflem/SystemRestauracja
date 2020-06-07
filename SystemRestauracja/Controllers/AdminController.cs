@@ -179,7 +179,7 @@ namespace SystemRestauracja.Controllers
             }
             if (!String.IsNullOrEmpty(searchString))
             {
-                searchString = searchString;
+                currentFilter = searchString;
                 model.Kategorie = model.Kategorie.Where(x => x.Nazwa.Contains(searchString)).Skip((page - 1) * pageSize).Take(pageSize).ToList();
                 total = ((decimal)model.Kategorie.Count() / (decimal)pageSize);
             }
@@ -753,25 +753,25 @@ namespace SystemRestauracja.Controllers
                 case "name_desc":
                     model = new ShowUsersViewModel()
                     {
-                        Users = _context.Users.OrderByDescending(x => x.UserName).ToList()
+                        Users = _context.Users.OrderByDescending(x => x.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList()
                     };
                     break;
                 case "stat":
                     model = new ShowUsersViewModel()
                     {
-                        Users = _context.Users.OrderBy(x => x.StatusStolika).ToList()
+                        Users = _context.Users.OrderBy(x => x.StatusStolika).Skip((page - 1) * pageSize).Take(pageSize).ToList()
                     };
                     break;
                 case "stat_desc":
                     model = new ShowUsersViewModel()
                     {
-                        Users = _context.Users.OrderByDescending(x => x.StatusStolika).ToList()
+                        Users = _context.Users.OrderByDescending(x => x.StatusStolika).Skip((page - 1) * pageSize).Take(pageSize).ToList()
                     };
                     break;
                 default:
                     model = new ShowUsersViewModel()
                     {
-                        Users = _context.Users.OrderByDescending(x => x.UserName).ToList()
+                        Users = _context.Users.OrderByDescending(x => x.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList()
                     };
                     break;
             }
@@ -886,9 +886,6 @@ namespace SystemRestauracja.Controllers
                         //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
                         //.OrderBy(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.CenaZestawu).ToList(),
-                        Dania = _context.Dania.ToList(),
-                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
-                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
                     };
                     break;
                 case "price_desc":
@@ -897,9 +894,6 @@ namespace SystemRestauracja.Controllers
                         //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
                         //.OrderByDescending(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.CenaZestawu).ToList(),
-                        Dania = _context.Dania.ToList(),
-                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
-                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
                     };
                     break;
                 case "stat":
@@ -908,9 +902,6 @@ namespace SystemRestauracja.Controllers
                         //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
                         //.OrderBy(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.StatusZestawu).ToList(),
-                        Dania = _context.Dania.ToList(),
-                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
-                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
                     };
                     break;
                 case "stat_desc":
@@ -919,9 +910,6 @@ namespace SystemRestauracja.Controllers
                         //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
                         //.OrderByDescending(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.StatusZestawu).ToList(),
-                        Dania = _context.Dania.ToList(),
-                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
-                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
                     };
                     break;
                 case "date_desc":
@@ -930,9 +918,6 @@ namespace SystemRestauracja.Controllers
                         //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
                         //.OrderBy(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.CreateDate).ToList(),
-                        Dania = _context.Dania.ToList(),
-                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
-                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
                     };
                     break;
                 case "table_desc":
@@ -941,9 +926,6 @@ namespace SystemRestauracja.Controllers
                         //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
                         //.OrderByDescending(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.Zamawiajacy.UserName).ToList(),
-                        Dania = _context.Dania.ToList(),
-                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
-                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
                     };
                     break;
                 case "table":
@@ -952,9 +934,6 @@ namespace SystemRestauracja.Controllers
                         //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
                         //.OrderBy(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderBy(x => x.Zamawiajacy.UserName).ToList(),
-                        Dania = _context.Dania.ToList(),
-                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
-                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
                     };
                     break;
                 default:
@@ -963,13 +942,14 @@ namespace SystemRestauracja.Controllers
                         //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
                         //.OrderByDescending(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                         Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Oczekujace).OrderByDescending(x => x.CreateDate).ToList(),
-                        Dania = _context.Dania.ToList(),
-                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
-                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
                     };
                     break;
             }
 
+            model.Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace).ToList();
+            model.Dania = _context.Dania.ToList();
+            model.DaniaDoZestawow = _context.DaniaDoZestawu.ToList();
+            model.Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList();
             model.currentPage = page;
             model.pageSize = pageSize;
             model.totalPages = (int)Math.Ceiling(total);
@@ -1118,6 +1098,7 @@ namespace SystemRestauracja.Controllers
             }
             ModelState.AddModelError("Error", "Symbol nie istnieje");
 
+            ViewData["Title"] = "Edytuj symbol";
             return View("./AddSymbol");
         }
 
@@ -1244,13 +1225,13 @@ namespace SystemRestauracja.Controllers
                 case "name_desc":
                     model = new ShowSymbolsViewModel()
                     {
-                        Symbole = _context.Symbole.OrderByDescending(x=>x.Nazwa).ToList(),
+                        Symbole = _context.Symbole.OrderByDescending(x=>x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                     };
                     break;
                 default:
                     model = new ShowSymbolsViewModel()
                     {
-                        Symbole = _context.Symbole.OrderBy(x => x.Nazwa).ToList(),
+                        Symbole = _context.Symbole.OrderBy(x => x.Nazwa).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
                     };
                     break;
             }
@@ -1263,9 +1244,185 @@ namespace SystemRestauracja.Controllers
         }
 
         [HttpGet]
+        [Route("Admin/GenerateReportDania")]
         public IActionResult GenerateReportDania()
         {
-            return View();
+            var model = new DaniaReportViewModel() { };
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult GenerateReportDania(DaniaReportViewModel model)
+        {
+            if(model.DataOd > model.DataDo)
+            {
+                var temp = model.DataOd;
+                model.DataOd = model.DataDo;
+                model.DataDo = temp;
+            }
+            var daniaDoZestawu = _context.DaniaDoZestawu.Where(x => x.CreateDate >= model.DataOd && x.CreateDate <= model.DataDo).ToList();
+            var dania = _context.Dania.ToList();
+            
+            List<DanieReportElement> report = new List<DanieReportElement>();
+            foreach(var danie in dania)
+            {
+                var dre = new DanieReportElement()
+                {
+                    Nazwa = danie.Nazwa,
+                    Cena = danie.Cena,
+                    CzyUpublicznione = danie.CzyUpublicznione,
+                    DataDodania = danie.CreateDate,
+                    NazwaKategorii = _context.Kategorie.FirstOrDefault(x => x.Id == danie.CategoryId).Nazwa
+                };
+                int i = 0;
+                foreach(var ddz in daniaDoZestawu)
+                {
+                    if(ddz.DanieId == danie.Id)
+                    {
+                        i++;
+                    }
+                }
+                dre.IloscZamowien = i;
+                report.Add(dre);
+            }
+            //decimal total = ((decimal)report.Count() / (decimal)pageSize);
+            //model.totalPages = (int)Math.Ceiling(total);
+            //model.currentPage = page;
+            //model.pageSize = pageSize;
+            model.DaniaList = report;
+            return View(model);
+        }
+
+        [HttpGet]
+        [Route("Admin/GenerateReportZestawy")]
+        public IActionResult GenerateReportZestawy(DateTime dataOd, DateTime dataDo, DateTime currentDataOd, DateTime currentDataDo, string sortOrder, int page = 1, int pageSize = 10)
+        {
+
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.PriceSortParm = sortOrder == "price" ? "price_desc" : "price";
+            ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date_desc" : "date"; //domyślnie od najstarszego zamówienia
+            ViewBag.StatusSortParm = sortOrder == "stat" ? "stat_desc" : "stat";
+            ViewBag.TableSortParm = sortOrder == "table" ? "table_desc" : "table";
+            ShowPendingViewModel model;
+
+
+            if (dataOd != DateTime.MinValue && dataDo!=DateTime.MinValue)
+            {
+                page = 1;
+            }
+            else
+            {
+                dataOd = currentDataOd;
+                dataDo = currentDataDo;
+            }
+            ViewBag.CurrentDataOd = dataOd;
+            ViewBag.CurrentDataDo = dataDo;
+            switch (sortOrder)
+            {
+                case "price":
+                    model = new ShowPendingViewModel()
+                    {
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderBy(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Wydane && x.CreateDate>=dataOd && x.CreateDate<=dataDo).OrderBy(x => x.CenaZestawu).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "price_desc":
+                    model = new ShowPendingViewModel()
+                    {
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderByDescending(x => x.CenaSuma).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Wydane && x.CreateDate >= dataOd && x.CreateDate <= dataDo).OrderByDescending(x => x.CenaZestawu).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "stat":
+                    model = new ShowPendingViewModel()
+                    {
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderBy(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Wydane && x.CreateDate >= dataOd && x.CreateDate <= dataDo).OrderBy(x => x.StatusZestawu).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "stat_desc":
+                    model = new ShowPendingViewModel()
+                    {
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderByDescending(x => x.StatusZamowienie).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Wydane && x.CreateDate >= dataOd && x.CreateDate <= dataDo).OrderByDescending(x => x.StatusZestawu).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "date_desc":
+                    model = new ShowPendingViewModel()
+                    {
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderBy(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Wydane && x.CreateDate >= dataOd && x.CreateDate <= dataDo).OrderByDescending(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "table_desc":
+                    model = new ShowPendingViewModel()
+                    {
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderByDescending(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Wydane && x.CreateDate >= dataOd && x.CreateDate <= dataDo).OrderByDescending(x => x.Zamawiajacy.UserName).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                case "table":
+                    model = new ShowPendingViewModel()
+                    {
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderBy(x => x.Zamawiajacy.UserName).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Wydane && x.CreateDate >= dataOd && x.CreateDate <= dataDo).OrderBy(x => x.Zamawiajacy.UserName).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+                default:
+                    model = new ShowPendingViewModel()
+                    {
+                        //Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        //.OrderByDescending(x => x.CreateDate).Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                        Zestawy = _context.Zestawy.Where(x => x.StatusZestawu == StatusZestaw.Wydane && x.CreateDate >= dataOd && x.CreateDate <= dataDo).OrderByDescending(x => x.CreateDate).ToList(),
+                        Dania = _context.Dania.ToList(),
+                        DaniaDoZestawow = _context.DaniaDoZestawu.ToList(),
+                        Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList(),
+                    };
+                    break;
+            }
+            decimal total = ((decimal)model.Zestawy.Count() / (decimal)pageSize);
+            if (dataOd != DateTime.MinValue && dataDo != DateTime.MinValue)
+            {
+                currentDataOd = dataOd;
+                currentDataDo = dataDo;
+                total = ((decimal)model.Zestawy.Count() / (decimal)pageSize);
+                model.Zestawy = model.Zestawy.Where(x => x.CreateDate >=dataOd && x.CreateDate<=dataDo).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+                
+            }
+
+            model.currentPage = page;
+            model.pageSize = pageSize;
+            model.totalPages = (int)Math.Ceiling(total);
+
+            return View(model);
         }
     }
 }

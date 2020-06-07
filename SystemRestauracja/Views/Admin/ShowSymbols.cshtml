@@ -13,7 +13,12 @@
 
 
 
-
+<div class="container w-50 mt-2 mb-2">
+    <form asp-controller="Admin" asp-action="ShowSymbols" class="row">
+        <input id="searchString" name="searchString" type="text" placeholder="Wyszukaj po nazwie" class="form-control col">
+        <button type="submit" runat="server" class="btn btn-dark mr-5">Szukaj</button>
+    </form>
+</div>
 <div class="container-fluid list-group col">
     <div class="row">
         <label class="col">@Html.ActionLink("Nazwa symbolu", "ShowSymbols", new { sortOrder = ViewBag.NameSortParm })</label>
