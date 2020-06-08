@@ -1,0 +1,91 @@
+﻿@model SystemRestauracja.Models.Admin.ShowZamowieniaViewModel
+@{
+    ViewData["Title"] = "Lista Zamówień";
+}
+
+@if (!ViewData.ModelState.IsValid && ViewData.ModelState["Error"].Errors.Count > 0)
+{
+    <div class="alert alert-danger">
+        @ViewData.ModelState["Error"].Errors.First().ErrorMessage
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <p class="alert alert-success" id="successMessage">@TempData["Success"]</p>
+}
+
+@*<form class="container">
+        <div class="row">
+            Znajdź po nazwie:<input type="text" asp-action="ShowCategories" asp-route="searchString" />
+            <button type="submit" class="btn btn-dark">Szukaj</button>
+        </div>
+    </form>*@
+
+<div class="justify-content-center">
+    <h2 class="text-dark text-center">Zamówienia</h2>
+</div>
+
+<div>
+    <div class="row">
+        <div class="col">Nr zamówienia</div>
+        <div class="col">
+            @Html.ActionLink("Data utworzenia", "ShowZamowienia", new { sortOrder = ViewBag.DateSortParm })
+        </div>
+        <div class="col">Data zgłoszenia chęci zapłaty</div>
+        <div class="col"></div>
+    </div>
+</div>
+
+
+<div class="container-fluid list-group col" style="overflow-y:scroll; height: 75vh; padding-left:25px;">
+    @foreach (var zamowienie in Model.Zamowienia)
+    {
+
+        <div>
+            <div class="row">
+                <a class="form-control col text-primary">@zamowienie.ZamowienieNr</a>
+                <a class="form-control col text-primary">@zamowienie.CreateDate</a>
+
+                <a class="form-control col text-primary">@zamowienie.DeleteDate</a>
+                <form>
+                    <button class="btn btn-outline-info col" asp-action="CloseZamowienie" asp-controller="Admin" asp-route-zamowienieId="@zamowienie.Id">Zamknij Zamówienie</button>
+                </form>
+                <div class="col"></div>
+            </div>
+        </div>
+
+    }
+    <div>
+        <div class="text-dark text-center">Strona @(Model.totalPages < Model.currentPage ? 0 : Model.currentPage) z @Model.totalPages</div>
+    </div>
+
+    <div class="justify-content-center row">
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.totalPages; i++)
+            {
+                <li class="@(i== Model.currentPage ? "page-item active" : "page-item")">
+                    <a class="page-link" href="@Url.Action("ShowZamowienia", new {page=i, sortOrder=ViewBag.CurrentSort, currentFilter=ViewBag.CurrentFilter})">@i</a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+
+@*<script>
+        $(function () {
+            $("#HasParent").click(function () {
+                if ($(this).is(":checked")) {
+                    $("#categoryChoice").show();
+                } else {
+                    $("#categoryChoice").hide();
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            $("#categoryChoice").hide();
+        });
+
+    </script>*@

@@ -10,8 +10,8 @@ namespace SystemRestauracja.Models.Admin
     {
         public List<Symbol> Symbole { get; set; }
 
-        public int currentPage;
-        public int pageSize;
-        public int totalPages;
+        public int currentPage { get; set; }
+        public int pageSize { get; set; }
+        public int totalPages { get; set; }
     }
 }

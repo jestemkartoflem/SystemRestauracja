@@ -9,8 +9,8 @@ namespace SystemRestauracja.Models.Admin
     public class ShowCategoriesViewModel
     {
         public List<Kategoria> Kategorie { get; set; }
-        public int currentPage;
-        public int pageSize;
-        public int totalPages;
+        public int currentPage { get; set; }
+        public int pageSize { get; set; }
+        public int totalPages { get; set; }
     }
 }

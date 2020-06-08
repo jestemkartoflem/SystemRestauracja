@@ -875,7 +875,7 @@ namespace SystemRestauracja.Controllers
             ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date_desc" : "date"; //domyślnie od najstarszego zamówienia
             ViewBag.StatusSortParm = sortOrder == "stat" ? "stat_desc" : "stat";
             ViewBag.TableSortParm = sortOrder == "table" ? "table_desc" : "table";
-            decimal total = ((decimal)_context.Users.Count() / (decimal)pageSize);
+            
             ShowPendingViewModel model;
 
             switch (sortOrder)
@@ -946,7 +946,8 @@ namespace SystemRestauracja.Controllers
                     break;
             }
 
-            model.Zamowienia = _context.Zamowienia.Where(x => x.StatusZamowienie == StatusZamowienie.Oczekujace).ToList();
+            decimal total = ((decimal)model.Zestawy.Count() / (decimal)pageSize);
+            model.Zamowienia = _context.Zamowienia.ToList();
             model.Dania = _context.Dania.ToList();
             model.DaniaDoZestawow = _context.DaniaDoZestawu.ToList();
             model.Uzytkownicy = _context.Users.Where(x => x.IsActive != "false").ToList();
@@ -1000,7 +1001,7 @@ namespace SystemRestauracja.Controllers
                 }
                 if (wszystkieZestawyWydane)
                 {
-                    zamowienie.StatusZamowienie = StatusZamowienie.Usuniete;
+                    zamowienie.StatusZamowienie = StatusZamowienie.Wydane;
                     zamowienie.DeleteDate = DateTime.Now;
                     _context.Zamowienia.Update(zamowienie);
                     _context.SaveChanges();
@@ -1423,6 +1424,61 @@ namespace SystemRestauracja.Controllers
             model.totalPages = (int)Math.Ceiling(total);
 
             return View(model);
+        }
+        public IActionResult ShowZamowienia(string sortOrder, int page = 1, int pageSize = 10)
+        {
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date" : "";
+            decimal total = ((decimal)_context.Zamowienia.Where(x=>x.StatusZamowienie == StatusZamowienie.Oplacane).Count() / (decimal)pageSize);
+            ShowZamowieniaViewModel model;
+
+            switch (sortOrder)
+            {
+
+                case "date":
+                    model = new ShowZamowieniaViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.OrderBy(x => x.CreateDate).Where(x => x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .Skip((page - 1) * pageSize).Take(pageSize).ToList(),
+                    };
+                    break;
+                default:
+                    model = new ShowZamowieniaViewModel()
+                    {
+                        Zamowienia = _context.Zamowienia.OrderByDescending(x => x.CreateDate).Where(x => x.StatusZamowienie == StatusZamowienie.Oplacane)
+                        .Skip((page - 1) * pageSize).Take(pageSize).ToList()
+                    };
+                    break;
+            }
+
+            model.currentPage = page;
+            model.pageSize = pageSize;
+            model.totalPages = (int)Math.Ceiling(total);
+
+            return View(model);
+        }
+
+        [HttpGet]
+        [Route("Admin/CloseZamowienie/{zamowienieId}")]
+        public IActionResult CloseZamowienie(Guid zamowienieId)
+        {
+            var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zamowienieId);
+
+            if (zamowienie != null && zamowienie.StatusZamowienie==StatusZamowienie.Oplacane)
+            {
+                zamowienie.StatusZamowienie = StatusZamowienie.Usuniete;
+                zamowienie.DeleteDate = DateTime.Now;
+                _context.Zamowienia.Update(zamowienie);
+                _context.SaveChanges();
+            }
+            else
+            {
+                ModelState.AddModelError("Error", "Brak wybranego zamówienia lub wybrane zamówienie nie oczekuje na zapłatę.");
+                return RedirectToAction("ShowZamowienia");
+            }
+
+            TempData["Success"] = "Pomyślnie zamknięto zamówienie.";
+            return RedirectToAction("ShowZamowienia");
         }
     }
 }

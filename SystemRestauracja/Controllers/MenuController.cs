@@ -37,7 +37,12 @@ namespace SystemRestauracja.Controllers
                 CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
-                Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
+                Zamowienia = _context.Zamowienia
+                .Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)
+                && (x.StatusZamowienie == StatusZamowienie.Oczekujace
+                || x.StatusZamowienie == StatusZamowienie.Dodawane
+                || x.StatusZamowienie == StatusZamowienie.Wydane))
+                .ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                 Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                 DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
                 //SelectedZestawId = zestaw.Id, //zestaw do ktorego obecnie wybieramy
@@ -59,10 +64,12 @@ namespace SystemRestauracja.Controllers
                 CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
-                Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId ==
-                    User.FindFirstValue(ClaimTypes.NameIdentifier) &&
-                    (x.StatusZamowienie == StatusZamowienie.Oczekujace ||
-                    x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
+                Zamowienia = _context.Zamowienia
+                .Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)
+                && (x.StatusZamowienie == StatusZamowienie.Oczekujace
+                || x.StatusZamowienie == StatusZamowienie.Dodawane
+                || x.StatusZamowienie == StatusZamowienie.Wydane))
+                .ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                 Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                 DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
                 //SelectedZestawId = zestaw.Id, //zestaw do ktorego obecnie wybieramy
@@ -84,7 +91,12 @@ namespace SystemRestauracja.Controllers
                 CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                 Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
-                Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
+                Zamowienia = _context.Zamowienia
+                .Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)
+                && (x.StatusZamowienie == StatusZamowienie.Oczekujace
+                || x.StatusZamowienie == StatusZamowienie.Dodawane
+                || x.StatusZamowienie == StatusZamowienie.Wydane))
+                .ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                 Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                 DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
                 SelectedZestawId = selectedZestawId, //zestaw do ktorego obecnie wybieramy
@@ -141,7 +153,7 @@ namespace SystemRestauracja.Controllers
         [Route("/Menu/AddZestaw/{zamowienieId}")]
         public IActionResult AddZestaw(Guid zamowienieId)
         {
-            var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zamowienieId && x.StatusZamowienie==StatusZamowienie.Dodawane);
+            var zamowienie = _context.Zamowienia.FirstOrDefault(x => x.Id == zamowienieId && x.StatusZamowienie == StatusZamowienie.Dodawane);
             if (zamowienie == null)
             {
                 TempData["Warning"] = "Wystąpił błąd - zestaw nie został dodany";
@@ -267,7 +279,12 @@ namespace SystemRestauracja.Controllers
                     CategoryList = _context.Kategorie.Where(x => x.ParentCategoryId == null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                     ChildrenCategories = _context.Kategorie.Where(x => x.ParentCategoryId != null).OrderBy(x => x.Nazwa).ToList(), //potrzebne do menu
                     Dania = _context.Dania.Where(x => x.CzyUpublicznione == true).ToList(), //potrzebne do menu
-                    Zamowienia = _context.Zamowienia.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier) && (x.StatusZamowienie == StatusZamowienie.Oczekujace || x.StatusZamowienie == StatusZamowienie.Dodawane)).ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
+                    Zamowienia = _context.Zamowienia
+                    .Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)
+                    && (x.StatusZamowienie == StatusZamowienie.Oczekujace
+                    || x.StatusZamowienie == StatusZamowienie.Dodawane
+                    || x.StatusZamowienie == StatusZamowienie.Wydane))
+                    .ToList(), //wszystkie zamowienia tego uzytkownika, potrzebne do wybrania innego obecnie aktywnego zamowienia
                     Zestawy = _context.Zestawy.Where(x => x.ZamawiajacyId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie zestawy pasujace do obecnie wybranego zamowienia
                     DaniaDoZestawow = _context.DaniaDoZestawu.Where(x => x.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier)).ToList(), //wszystkie dania w zestawach tego uzytkownika
                     Symbole = _context.Symbole.OrderBy(x => x.Nazwa).ToList(),
@@ -476,20 +493,20 @@ namespace SystemRestauracja.Controllers
         public IActionResult AddNotatka(OrderMenuViewModel model, Guid zestawId)
         {
             var zestaw = _context.Zestawy.FirstOrDefault(x => x.Id == zestawId);
-            if(model.Notatka!=null)
+            if (model.Notatka != null)
             {
                 string s = model.Notatka;
                 int i = 0;
-                foreach(char c in s) //prosta pętla dodająca puste miejsca w notatce w przypadku braku pustych znaków
+                foreach (char c in s) //prosta pętla dodająca puste miejsca w notatce w przypadku braku pustych znaków
                 {
-                    if(Char.IsWhiteSpace(c))
+                    if (Char.IsWhiteSpace(c))
                     {
                         i = 0;
                     }
                     else
                     {
                         i++;
-                        if(i>14)
+                        if (i > 14)
                         {
                             s.Insert(i, " ");
                         }

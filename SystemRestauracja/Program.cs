@@ -35,7 +35,7 @@ namespace SystemRestauracja
                 }
             }
 
-            
+
             host.Run();
         }
 
